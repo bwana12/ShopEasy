@@ -6,7 +6,7 @@
     <title>ShopEasy | Premium Shopping Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --dark: #1a1a1a; --shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --dark: #1a1a1a; --shadow: 0 4px 15px rgba(0,0,0,0.1); --success: #28a745; --warning: #ffc107; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
         body { background: #f9f9f9; padding-bottom: 50px; overflow-x: hidden; }
 
@@ -16,26 +16,37 @@
         .cart-icon { font-size: 20px; cursor: pointer; position: relative; }
         .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
-        /* Search Bar Area */
+        /* Search Bar */
         .search-section { padding: 15px 5%; background: white; border-bottom: 1px solid #eee; }
         .search-box { position: relative; max-width: 600px; margin: 0 auto; }
         .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid #ddd; outline: none; font-size: 16px; background: #fdfdfd; }
         .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
 
-        /* Categories */
-        .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
-        .filter-container::-webkit-scrollbar { display: none; }
-        .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: white; color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.3s; }
-        .filter-btn.active { background: var(--secondary); color: white; }
+        /* Featured Section */
+        .featured-title { padding: 15px 5% 5px; font-size: 18px; font-weight: bold; color: var(--dark); }
+        .featured-container { display: flex; gap: 15px; padding: 10px 5%; overflow-x: auto; scrollbar-width: none; }
+        .featured-container::-webkit-scrollbar { display: none; }
+        .featured-item { min-width: 200px; background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.6)), var(--secondary); height: 120px; border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; flex-shrink: 0; }
+        .featured-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: -1; }
+        .featured-info { position: absolute; bottom: 10px; left: 10px; color: white; }
+
+        /* Stock Status Badges */
+        .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
+        .in-stock { background: #e8f5e9; color: var(--success); }
+        .low-stock { background: #fffde7; color: #f57f17; }
 
         /* Grid Layout */
+        .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
+        .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: white; color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; }
+        .filter-btn.active { background: var(--secondary); color: white; }
+
         .container { padding: 0 5%; max-width: 1000px; margin: 0 auto; }
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
-        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: 0.3s; border: 1px solid #eee; cursor: pointer; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid #eee; cursor: pointer; position: relative; }
         .p-img { width: 100%; height: 140px; object-fit: cover; }
         .p-info { padding: 10px; }
-        .p-name { font-weight: bold; font-size: 13px; height: 36px; overflow: hidden; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+        .p-name { font-weight: bold; font-size: 13px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 5px 0; }
         .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
 
         /* Modal */
@@ -43,13 +54,13 @@
         .modal-content { background: white; padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; position: relative; }
         .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
 
-        /* Cart Sidebar Updates */
+        /* Sidebar */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 1000; padding: 25px; }
         #cart-sidebar.active { right: 0; }
         .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
-        .qty-btn { background: #f0f0f0; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
-        .del-item { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 16px; margin-left: 10px; }
+        .qty-btn { background: #f0f0f0; border: none; width: 24px; height: 24px; border-radius: 4px; }
+        .del-item { color: #ff4d4d; border: none; background: none; font-size: 16px; margin-left: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -69,12 +80,19 @@
         </div>
     </div>
 
-    <div class="filter-container">
-        <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
-        <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
-        <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
-        <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
-        <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+    <div id="featured-section-ui">
+        <h3 class="featured-title">🔥 New Arrivals</h3>
+        <div class="featured-container" id="featured-list"></div>
+    </div>
+
+    <div class="filter-container" style="padding-bottom: 15px;">
+        <div style="display: flex; gap: 12px; padding: 0 5%; overflow-x: auto; scrollbar-width: none;">
+            <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
+            <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
+            <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
+            <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
+            <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+        </div>
     </div>
 
     <div class="container">
@@ -85,7 +103,8 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
             <img id="modal-img" src="" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
-            <h3 id="modal-name" style="margin-top:15px;"></h3>
+            <div id="modal-stock-div" style="margin-top: 15px;"></div>
+            <h3 id="modal-name"></h3>
             <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
             <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:20px;"></p>
             <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">Add to Cart</button>
@@ -128,17 +147,36 @@
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
             allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             renderProducts(allProducts);
+            renderFeatured(allProducts);
         });
+
+        function renderFeatured(list) {
+            const featCont = document.getElementById('featured-list');
+            featCont.innerHTML = list.slice(0, 4).map(p => `
+                <div class="featured-item" onclick="showDetailsByID('${p.id}')">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="featured-info">
+                        <p>${p.name}</p>
+                        <small>MK ${Number(p.price).toLocaleString()}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
 
         function renderProducts(list) {
             const cont = document.getElementById('store-container');
             cont.innerHTML = list.length ? "" : "<p style='grid-column: 1/-1; text-align:center;'>No items found.</p>";
             list.forEach(p => {
+                // Stock logic: if stock > 5 "In Stock", else "Limited"
+                const stockClass = (p.stock > 5) ? 'in-stock' : 'low-stock';
+                const stockText = (p.stock > 5) ? 'In Stock' : 'Limited Stock';
+                
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
                     <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="p-info">
+                        <span class="stock-badge ${stockClass}">${stockText}</span>
                         <p class="p-name">${p.name}</p>
                         <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
                         <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${p.id}')">Add to Cart</button>
@@ -150,9 +188,7 @@
 
         window.addToCart = (id) => {
             const existing = cart.find(i => i.id === id);
-            if(existing) {
-                existing.qty++;
-            } else {
+            if(existing) { existing.qty++; } else {
                 const p = allProducts.find(prod => prod.id === id);
                 cart.push({ ...p, qty: 1 });
             }
@@ -168,17 +204,11 @@
             }
         };
 
-        window.removeItem = (id) => {
-            cart = cart.filter(i => i.id !== id);
-            updateCartUI();
-        };
+        window.removeItem = (id) => { cart = cart.filter(i => i.id !== id); updateCartUI(); };
 
         function updateCartUI() {
-            const count = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-count').innerText = count;
-            const list = document.getElementById('cart-items-list');
-            
-            list.innerHTML = cart.map(i => `
+            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cart-items-list').innerHTML = cart.map(i => `
                 <div class="cart-item">
                     <div style="flex-grow:1;">
                         <b>${i.name}</b><br>
@@ -191,22 +221,27 @@
                     </div>
                     <button class="del-item" onclick="removeItem('${i.id}')"><i class="fas fa-trash"></i></button>
                 </div>`).join("");
-
-            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            document.getElementById('cart-total').innerText = total.toLocaleString();
+            document.getElementById('cart-total').innerText = cart.reduce((s, i) => s + (i.price * i.qty), 0).toLocaleString();
         }
 
         window.handleSearch = () => {
-            const queryText = document.getElementById('search-input').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(queryText));
-            renderProducts(filtered);
+            const qTxt = document.getElementById('search-input').value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(qTxt)));
+            document.getElementById('featured-section-ui').style.display = qTxt ? 'none' : 'block';
         };
+
+        window.showDetailsByID = (id) => showDetails(allProducts.find(item => item.id === id));
 
         window.showDetails = (p) => {
             document.getElementById('modal-img').src = p.image;
             document.getElementById('modal-name').innerText = p.name;
             document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
             document.getElementById('modal-desc').innerText = p.description || "No details provided.";
+            
+            const stockClass = (p.stock > 5) ? 'in-stock' : 'low-stock';
+            const stockText = (p.stock > 5) ? 'Available: In Stock' : 'Hurry: Limited Stock Remaining';
+            document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${stockClass}">${stockText}</span>`;
+            
             document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeModal(); };
             document.getElementById('productModal').style.display = 'flex';
         };
@@ -231,6 +266,7 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
+            document.getElementById('featured-section-ui').style.display = cat === 'All' ? 'block' : 'none';
         };
     </script>
 </body>
