@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy | Premium Shopping Malawi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --dark: #1a1a1a; --shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f9f9f9; padding-bottom: 50px; }
+
+        /* Nav & Hero */
+        nav { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
+        .cart-icon { font-size: 20px; cursor: pointer; position: relative; }
+        .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
+        .hero { background: var(--dark); color: white; padding: 30px 5%; text-align: center; }
+
+        /* Category Filter */
+        .filter-container { display: flex; justify-content: center; gap: 10px; padding: 20px 5%; overflow-x: auto; white-space: nowrap; }
+        .filter-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid var(--secondary); background: white; color: var(--secondary); cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .filter-btn.active { background: var(--secondary); color: white; }
+
+        /* Grid */
+        .container { padding: 0 5%; max-width: 1200px; margin: 0 auto; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 20px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: 0.3s; }
+        .product-card:hover { transform: translateY(-5px); }
+        .p-img { width: 100%; height: 160px; object-fit: cover; }
+        .p-info { padding: 12px; }
+        .p-price { color: var(--primary); font-weight: bold; font-size: 16px; margin: 5px 0; }
+        .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; }
+
+        /* Cart Sidebar */
+        #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 1000; padding: 25px; }
+        #cart-sidebar.active { right: 0; }
+        .cart-item { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 14px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">ShopEasy.</div>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cart-count">0</span>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <h1>Malawi's Quality Store</h1>
+        <p>Reliable items delivered to your door.</p>
+    </div>
+
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterProducts('All', this)">All</button>
+        <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
+        <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
+        <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
+        <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+    </div>
+
+    <div class="container">
+        <div class="products-grid" id="store-container"></div>
+    </div>
+
+    <div id="cart-sidebar">
+        <h3>🛒 Your Order</h3>
+        <hr><br>
+        <div id="cart-items-list"></div>
+        <div style="margin-top: 20px;">
+            <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
+            <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid #ddd; border-radius:8px;">
+            <button class="btn-buy" style="margin-top: 15px; background: #25D366; font-size:16px;" onclick="checkout()">
+                <i class="fab fa-whatsapp"></i> Order on WhatsApp
+            </button>
+            <button class="btn-buy" style="margin-top: 10px; background: #888;" onclick="toggleCart()">Continue Shopping</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+            authDomain: "shopeasy-14890.firebaseapp.com",
+            projectId: "shopeasy-14890",
+            storageBucket: "shopeasy-14890.firebasestorage.app",
+            messagingSenderId: "45827037951",
+            appId: "1:45827037951:web:545d41703780fa51018aca"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allProducts = [];
+        let cart = [];
+        const MY_PHONE = "265884963398"; // Your number
+
+        // 1. Fetch & Render
+        const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+        onSnapshot(q, (snapshot) => {
+            allProducts = [];
+            snapshot.forEach(d => allProducts.push({ id: d.id, ...d.data() }));
+            renderProducts(allProducts);
+        });
+
+        function renderProducts(list) {
+            const cont = document.getElementById('store-container');
+            cont.innerHTML = list.length ? "" : "<p>No items found.</p>";
+            list.forEach(p => {
+                cont.innerHTML += `
+                <div class="product-card">
+                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
+                    <div class="p-info">
+                        <p style="font-weight:bold; height:40px; overflow:hidden;">${p.name}</p>
+                        <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
+                        <button class="btn-buy" onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // 2. Cart Logic
+        window.addToCart = (name, price) => {
+            cart.push({ name, price });
+            updateCartUI();
+            if(!document.getElementById('cart-sidebar').classList.contains('active')) toggleCart();
+        };
+
+        function updateCartUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const list = document.getElementById('cart-items-list');
+            list.innerHTML = cart.map(i => `<div class="cart-item"><span>${i.name}</span> <b>MK ${i.price.toLocaleString()}</b></div>`).join("");
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            document.getElementById('cart-total').innerText = total.toLocaleString();
+        }
+
+        window.toggleCart = () => document.getElementById('cart-sidebar').classList.toggle('active');
+
+        // 3. WhatsApp Checkout
+        window.checkout = async () => {
+            const name = document.getElementById('cust-name').value;
+            if(!name || !cart.length) return alert("Please enter your name!");
+
+            const total = cart.reduce((s, i) => s + i.price, 0);
+            let itemsText = cart.map(i => `- ${i.name} (MK ${i.price.toLocaleString()})`).join("%0A");
+            let msg = `*🚀 NEW ORDER: ShopEasy*%0A%0A*Name:* ${name}%0A*Items:*%0A${itemsText}%0A%0A*Total:* MK ${total.toLocaleString()}`;
+
+            try {
+                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total, status: "pending", timestamp: Date.now() });
+                window.open(`https://wa.me/${MY_PHONE}?text=${msg}`, '_blank');
+                cart = []; updateCartUI(); toggleCart();
+            } catch (e) { alert("Error: " + e.message); }
+        };
+
+        window.filterProducts = (cat, btn) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
+        };
+    </script>
+</body>
+</html>
