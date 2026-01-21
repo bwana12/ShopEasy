@@ -1,84 +1,114 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEasy | Malawi</title>
+    <title>ShopEasy | Premium Shopping Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f8f9fa; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-        
-        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo { color: var(--primary); font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 10px; }
-        .search-bar { display: flex; background: #eee; border-radius: 25px; padding: 5px 15px; align-items: center; }
-        .search-bar input { border: none; background: none; padding: 10px; width: 100%; outline: none; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --dark: #1a1a1a; --shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f9f9f9; padding-bottom: 50px; overflow-x: hidden; }
 
-        /* Professional Smaller Grid */
-        .product-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 10px; 
-            padding: 10px; 
-        }
-        .p-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; }
-        .p-card img { width: 100%; height: 120px; object-fit: cover; }
-        .p-info { padding: 8px; }
-        .p-name { font-size: 13px; font-weight: 600; height: 34px; overflow: hidden; margin-bottom: 4px; }
-        .p-price { color: var(--primary); font-weight: bold; font-size: 14px; }
-        .add-btn { background: var(--secondary); color: white; border: none; width: 100%; padding: 7px; border-radius: 5px; margin-top: 5px; cursor: pointer; font-size: 12px; }
+        /* Navigation */
+        nav { background: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .logo { font-size: 24px; font-weight: bold; color: var(--primary); }
+        .cart-icon { font-size: 20px; cursor: pointer; position: relative; }
+        .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
-        /* Cart Overlay */
-        #cart-modal { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: white; z-index: 1000; transition: 0.4s; padding: 20px; box-sizing: border-box; }
-        #cart-modal.active { right: 0; }
-        .cart-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
-        .cart-item-info { flex-grow: 1; }
-        
-        /* Quantity Controls */
-        .qty-controls { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
-        .qty-btn { background: #eee; border: none; width: 25px; height: 25px; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        
-        .del-item { color: #ff4d4d; border: none; background: none; padding: 10px; cursor: pointer; font-size: 16px; }
+        /* Search Bar Area */
+        .search-section { padding: 15px 5%; background: white; border-bottom: 1px solid #eee; }
+        .search-box { position: relative; max-width: 600px; margin: 0 auto; }
+        .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid #ddd; outline: none; font-size: 16px; background: #fdfdfd; }
+        .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
 
-        .wa-btn { background: #25D366; color: white; border: none; width: 100%; padding: 15px; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 15px; }
-        .cart-float { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 99; border: none; }
-        .badge { position: absolute; top: 0; right: 0; background: black; color: white; font-size: 11px; padding: 2px 6px; border-radius: 10px; }
+        /* Categories */
+        .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
+        .filter-container::-webkit-scrollbar { display: none; }
+        .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: white; color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; transition: 0.3s; }
+        .filter-btn.active { background: var(--secondary); color: white; }
+
+        /* Grid Layout */
+        .container { padding: 0 5%; max-width: 1000px; margin: 0 auto; }
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); transition: 0.3s; border: 1px solid #eee; cursor: pointer; }
+        .p-img { width: 100%; height: 140px; object-fit: cover; }
+        .p-info { padding: 10px; }
+        .p-name { font-weight: bold; font-size: 13px; height: 36px; overflow: hidden; margin-bottom: 5px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin-bottom: 8px; }
+        .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; position: relative; }
+        .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+
+        /* Cart Sidebar Updates */
+        #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 1000; padding: 25px; }
+        #cart-sidebar.active { right: 0; }
+        .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }
+        .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
+        .qty-btn { background: #f0f0f0; border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
+        .del-item { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 16px; margin-left: 10px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">ShopEasy</div>
-        <div class="search-bar">
+    <nav>
+        <div class="logo">ShopEasy.</div>
+        <div class="cart-icon" onclick="toggleCart()">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cart-count">0</span>
+        </div>
+    </nav>
+
+    <div class="search-section">
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search..." onkeyup="handleSearch()">
             <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Search..." onkeyup="search()">
         </div>
-    </header>
+    </div>
 
-    <div class="product-grid" id="productList"></div>
+    <div class="filter-container">
+        <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
+        <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
+        <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
+        <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
+        <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+    </div>
 
-    <button class="cart-float" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="badge" id="cartCount">0</span>
-    </button>
+    <div class="container">
+        <div class="products-grid" id="store-container"></div>
+    </div>
 
-    <div id="cart-modal">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2>Your Cart</h2>
-            <button onclick="toggleCart()" style="border:none; background:none; font-size:24px;">&times;</button>
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <img id="modal-img" src="" style="width:100%; height:200px; object-fit:cover; border-radius:10px;">
+            <h3 id="modal-name" style="margin-top:15px;"></h3>
+            <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
+            <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:20px;"></p>
+            <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">Add to Cart</button>
         </div>
-        <div id="cartItems" style="max-height: 60vh; overflow-y: auto;"></div>
+    </div>
+
+    <div id="cart-sidebar">
+        <h3>🛒 Your Order</h3>
+        <hr><br>
+        <div id="cart-items-list" style="max-height: 50vh; overflow-y: auto;"></div>
         <div style="margin-top: 20px;">
-            <h3>Total: MK <span id="cartTotal">0</span></h3>
-            <input type="text" id="custName" placeholder="Your Name" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px;">
-            <button class="wa-btn" onclick="sendWhatsApp()">Order on WhatsApp</button>
+            <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
+            <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid #ddd; border-radius:8px;">
+            <button class="btn-buy" style="margin-top: 15px; background: #25D366; font-size:16px;" onclick="checkout()">
+                <i class="fab fa-whatsapp"></i> Order on WhatsApp
+            </button>
+            <button class="btn-buy" style="margin-top: 10px; background: #888;" onclick="toggleCart()">Continue Shopping</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -91,102 +121,118 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let products = [];
+        let allProducts = [];
         let cart = [];
+        const MY_PHONE = "265884963398"; 
 
-        onSnapshot(collection(db, "products"), snap => {
-            products = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            render(products);
+        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
+            allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderProducts(allProducts);
         });
 
-        function render(list) {
-            document.getElementById('productList').innerHTML = list.map(p => `
-                <div class="p-card">
-                    <img src="${p.image}">
+        function renderProducts(list) {
+            const cont = document.getElementById('store-container');
+            cont.innerHTML = list.length ? "" : "<p style='grid-column: 1/-1; text-align:center;'>No items found.</p>";
+            list.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.innerHTML = `
+                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="p-info">
-                        <div class="p-name">${p.name}</div>
-                        <div class="p-price">MK ${p.price.toLocaleString()}</div>
-                        <button class="add-btn" onclick="addToCart('${p.id}')">Add to Cart</button>
-                    </div>
-                </div>
-            `).join('');
+                        <p class="p-name">${p.name}</p>
+                        <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${p.id}')">Add to Cart</button>
+                    </div>`;
+                card.onclick = () => showDetails(p);
+                cont.appendChild(card);
+            });
         }
 
         window.addToCart = (id) => {
-            const existing = cart.find(item => item.id === id);
+            const existing = cart.find(i => i.id === id);
             if(existing) {
                 existing.qty++;
             } else {
-                const product = products.find(p => p.id === id);
-                cart.push({...product, qty: 1});
+                const p = allProducts.find(prod => prod.id === id);
+                cart.push({ ...p, qty: 1 });
             }
-            updateCart();
+            updateCartUI();
         };
 
-        window.changeQty = (index, delta) => {
-            cart[index].qty += delta;
-            if(cart[index].qty < 1) cart.splice(index, 1);
-            updateCart();
+        window.changeQty = (id, delta) => {
+            const item = cart.find(i => i.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+                updateCartUI();
+            }
         };
 
-        window.removeFromCart = (index) => {
-            cart.splice(index, 1);
-            updateCart();
+        window.removeItem = (id) => {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
         };
 
-        function updateCart() {
-            const count = cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cartCount').innerText = count;
+        function updateCartUI() {
+            const count = cart.reduce((s, i) => s + i.qty, 0);
+            document.getElementById('cart-count').innerText = count;
+            const list = document.getElementById('cart-items-list');
             
-            let total = 0;
-            document.getElementById('cartItems').innerHTML = cart.map((item, i) => {
-                total += (item.price * item.qty);
-                return `
+            list.innerHTML = cart.map(i => `
                 <div class="cart-item">
-                    <div class="cart-item-info">
-                        <b>${item.name}</b><br>
-                        MK ${(item.price * item.qty).toLocaleString()}
-                        <div class="qty-controls">
-                            <button class="qty-btn" onclick="changeQty(${i}, -1)">-</button>
-                            <span>${item.qty}</span>
-                            <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
+                    <div style="flex-grow:1;">
+                        <b>${i.name}</b><br>
+                        <small>MK ${(i.price * i.qty).toLocaleString()}</small>
+                        <div class="qty-box">
+                            <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
+                            <span>${i.qty}</span>
+                            <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
                         </div>
                     </div>
-                    <button class="del-item" onclick="removeFromCart(${i})"><i class="fas fa-trash"></i></button>
-                </div>`;
-            }).join('');
-            document.getElementById('cartTotal').innerText = total.toLocaleString();
+                    <button class="del-item" onclick="removeItem('${i.id}')"><i class="fas fa-trash"></i></button>
+                </div>`).join("");
+
+            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
-        window.toggleCart = () => document.getElementById('cart-modal').classList.toggle('active');
-
-        window.search = () => {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            render(products.filter(p => p.name.toLowerCase().includes(term)));
+        window.handleSearch = () => {
+            const queryText = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(queryText));
+            renderProducts(filtered);
         };
 
-        window.sendWhatsApp = async () => {
-            const name = document.getElementById('custName').value;
-            if(!name || cart.length === 0) return alert("Fill name and add items!");
+        window.showDetails = (p) => {
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-name').innerText = p.name;
+            document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
+            document.getElementById('modal-desc').innerText = p.description || "No details provided.";
+            document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeModal(); };
+            document.getElementById('productModal').style.display = 'flex';
+        };
 
-            let total = 0;
-            const items = cart.map(i => {
-                total += (i.price * i.qty);
-                return `- ${i.name} (x${i.qty})`;
-            }).join("%0A");
+        window.closeModal = () => document.getElementById('productModal').style.display = 'none';
+        window.toggleCart = () => document.getElementById('cart-sidebar').classList.toggle('active');
 
-            const msg = `*Order from ${name}*%0A${items}%0A*Total:* MK ${total}`;
-            
-            await addDoc(collection(db, "orders"), {
-                customerName: name,
-                items: cart,
-                total: total,
-                status: "pending",
-                timestamp: Date.now()
-            });
+        window.checkout = async () => {
+            const name = document.getElementById('cust-name').value;
+            if(!name || !cart.length) return alert("Enter name and add items!");
+            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+            let itemsText = cart.map(i => `- ${i.name} x${i.qty} (MK ${(i.price * i.qty).toLocaleString()})`).join("%0A");
+            let msg = `*🚀 NEW ORDER: ShopEasy*%0A%0A*Name:* ${name}%0A*Items:*%0A${itemsText}%0A%0A*Total:* MK ${total.toLocaleString()}`;
+            try {
+                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total, status: "pending", timestamp: Date.now() });
+                window.open(`https://wa.me/${MY_PHONE}?text=${msg}`, '_blank');
+                cart = []; updateCartUI(); toggleCart();
+            } catch (e) { alert(e.message); }
+        };
 
-            window.open(`https://wa.me/265999000000?text=${msg}`); 
+        window.filterProducts = (cat, btn) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
         };
     </script>
 </body>
 </html>
+
