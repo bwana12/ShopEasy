@@ -61,6 +61,7 @@
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .qty-btn { background: #f0f0f0; border: none; width: 24px; height: 24px; border-radius: 4px; }
         .del-item { color: #ff4d4d; border: none; background: none; font-size: 16px; margin-left: 10px; cursor: pointer; }
+        .bulk-tag { font-size: 10px; color: var(--success); font-weight: bold; display: block; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -167,7 +168,6 @@
             const cont = document.getElementById('store-container');
             cont.innerHTML = list.length ? "" : "<p style='grid-column: 1/-1; text-align:center;'>No items found.</p>";
             list.forEach(p => {
-                // Stock logic: if stock > 5 "In Stock", else "Limited"
                 const stockClass = (p.stock > 5) ? 'in-stock' : 'low-stock';
                 const stockText = (p.stock > 5) ? 'In Stock' : 'Limited Stock';
                 
@@ -207,12 +207,22 @@
         window.removeItem = (id) => { cart = cart.filter(i => i.id !== id); updateCartUI(); };
 
         function updateCartUI() {
+            let total = 0;
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-items-list').innerHTML = cart.map(i => `
+            
+            document.getElementById('cart-items-list').innerHTML = cart.map(i => {
+                // Apply Bulk Price if qty >= 5 and bulkPrice exists
+                const isBulk = (i.qty >= 5 && i.bulkPrice && i.bulkPrice < i.price);
+                const currentPrice = isBulk ? i.bulkPrice : i.price;
+                const itemTotal = currentPrice * i.qty;
+                total += itemTotal;
+
+                return `
                 <div class="cart-item">
                     <div style="flex-grow:1;">
                         <b>${i.name}</b><br>
-                        <small>MK ${(i.price * i.qty).toLocaleString()}</small>
+                        <small>MK ${itemTotal.toLocaleString()}</small>
+                        ${isBulk ? '<span class="bulk-tag"><i class="fas fa-tag"></i> Bulk Price Applied!</span>' : ''}
                         <div class="qty-box">
                             <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
                             <span>${i.qty}</span>
@@ -220,8 +230,10 @@
                         </div>
                     </div>
                     <button class="del-item" onclick="removeItem('${i.id}')"><i class="fas fa-trash"></i></button>
-                </div>`).join("");
-            document.getElementById('cart-total').innerText = cart.reduce((s, i) => s + (i.price * i.qty), 0).toLocaleString();
+                </div>`;
+            }).join("");
+            
+            document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
         window.handleSearch = () => {
@@ -252,11 +264,27 @@
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value;
             if(!name || !cart.length) return alert("Enter name and add items!");
-            const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            let itemsText = cart.map(i => `- ${i.name} x${i.qty} (MK ${(i.price * i.qty).toLocaleString()})`).join("%0A");
+            
+            let total = 0;
+            let itemsText = cart.map(i => {
+                const isBulk = (i.qty >= 5 && i.bulkPrice && i.bulkPrice < i.price);
+                const currentPrice = isBulk ? i.bulkPrice : i.price;
+                const lineTotal = currentPrice * i.qty;
+                total += lineTotal;
+                return `- ${i.name} x${i.qty} ${isBulk ? '(Bulk Rate)' : ''} (MK ${lineTotal.toLocaleString()})`;
+            }).join("%0A");
+
             let msg = `*🚀 NEW ORDER: ShopEasy*%0A%0A*Name:* ${name}%0A*Items:*%0A${itemsText}%0A%0A*Total:* MK ${total.toLocaleString()}`;
+            
             try {
-                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total, status: "pending", timestamp: Date.now() });
+                // Save to Firebase with the final calculated total
+                await addDoc(collection(db, "orders"), { 
+                    customerName: name, 
+                    items: cart, 
+                    total: total, 
+                    status: "pending", 
+                    timestamp: Date.now() 
+                });
                 window.open(`https://wa.me/${MY_PHONE}?text=${msg}`, '_blank');
                 cart = []; updateCartUI(); toggleCart();
             } catch (e) { alert(e.message); }
@@ -271,4 +299,3 @@
     </script>
 </body>
 </html>
-
