@@ -3,93 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEasy Admin | Inventory & Orders</title>
+    <title>ShopEasy | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --dark: #1a1a1a; --success: #28a745; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
         
-        header { background: var(--dark); color: white; padding: 20px; text-align: center; }
-
-        .admin-container { display: flex; flex: 1; overflow: hidden; padding: 20px; gap: 20px; flex-wrap: wrap; }
+        /* Dashboard Header */
+        header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         
-        .section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); flex: 1; min-width: 320px; overflow-y: auto; }
-        h2 { font-size: 18px; margin-bottom: 15px; color: var(--dark); border-bottom: 2px solid #eee; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-
         /* Revenue Card */
-        .revenue-card { background: var(--success); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; position: relative; }
-        .revenue-card h1 { margin: 10px 0; font-size: 28px; }
+        .revenue-card { background: var(--success); color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-grow: 1; min-width: 280px; text-align: center; }
+        .revenue-card h1 { margin: 5px 0; font-size: 24px; }
+        .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
+
+        /* Admin Form Card */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; }
+        h2 { margin-bottom: 20px; font-size: 1.2rem; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+
+        /* Layout Grid */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
+        @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+        /* Inventory & Orders Containers */
+        .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
+        .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+
+        /* Inventory Items */
+        .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; }
+        .inv-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .inv-info { flex-grow: 1; }
+        .inv-info b { font-size: 14px; display: block; }
+        .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; }
+
+        /* Orders */
+        .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .delivered { opacity: 0.6; border-left-color: #888; background: #f9f9f9; }
+        .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; }
         
-        /* Clear Button Styling */
-        .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .btn-clear:hover { background: white; color: var(--success); }
+        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 16px; }
 
-        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-        .btn-add { background: var(--primary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; }
-        .item-info b { display: block; font-size: 14px; }
-        .item-info small { color: #888; }
-        .stock-control { display: flex; align-items: center; gap: 10px; }
-        .stock-input { width: 60px; margin-bottom: 0; text-align: center; padding: 5px; }
-        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 18px; }
-
-        .order-card { background: #fff; border-left: 5px solid var(--secondary); padding: 15px; margin-bottom: 10px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .order-status { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
-        .pending { background: #fff3cd; color: #856404; }
+        .row-flex { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>ShopEasy Admin Panel</h1>
-        <p>Real-time Business Management</p>
+        <div class="revenue-card">
+            <p style="margin:0; font-size: 13px; opacity: 0.9;">TOTAL EARNINGS</p>
+            <h1 id="totalRevenue">MK 0</h1>
+            <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset Order History</button>
+        </div>
     </header>
 
-    <div class="admin-container">
-        
-        <div style="flex: 1; min-width: 320px; display: flex; flex-direction: column; gap: 20px;">
-            <div class="section" style="flex: none;">
-                <h2>
-                    <span><i class="fas fa-chart-line"></i> Total Revenue</span>
-                    <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Clear Orders</button>
-                </h2>
-                <div class="revenue-card">
-                    <p>Estimated Earnings</p>
-                    <h1 id="totalRevenue">MK 0</h1>
-                    <small id="orderCount">0 Orders Processed</small>
+    <div class="dashboard-grid">
+        <div>
+            <div class="card">
+                <h2>🚀 Post New Product</h2>
+                <input type="text" id="name" placeholder="Product Name">
+                
+                <div class="row-flex">
+                    <input type="number" id="price" placeholder="Normal Price (MK)">
+                    <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
                 </div>
-            </div>
-
-            <div class="section">
-                <h2><i class="fas fa-plus-circle"></i> Add New Product</h2>
-                <form id="productForm">
-                    <input type="text" id="pName" placeholder="Product Name" required>
-                    <input type="number" id="pPrice" placeholder="Price (MK)" required>
-                    <input type="number" id="pStock" placeholder="Initial Stock Quantity" required>
-                    <select id="pCategory">
+                
+                <div class="row-flex">
+                    <input type="number" id="stock" placeholder="Stock Qty">
+                    <select id="cat">
                         <option value="Electronics">Electronics</option>
                         <option value="Fashion">Fashion</option>
                         <option value="Home">Home</option>
                         <option value="Beauty">Beauty</option>
                     </select>
-                    <input type="text" id="pImage" placeholder="Image URL" required>
-                    <textarea id="pDesc" placeholder="Product Description" rows="3"></textarea>
-                    <button type="submit" class="btn-add">Upload Product</button>
-                </form>
+                </div>
+
+                <input type="text" id="img" placeholder="Image Link (https://...)">
+                <textarea id="desc" placeholder="Product Details..."></textarea>
+                <button class="btn-post" onclick="upload()">Publish Product</button>
             </div>
+
+            <h3 class="section-title"><i class="fas fa-shopping-bag"></i> Customer Orders</h3>
+            <div class="scroll-section" id="orders"></div>
         </div>
 
-        <div class="section">
-            <h2><i class="fas fa-boxes"></i> Inventory (Stock)</h2>
-            <div id="inventoryList"></div>
+        <div>
+            <h3 class="section-title"><i class="fas fa-boxes"></i> Inventory & Stock</h3>
+            <div class="scroll-section" id="inv"></div>
         </div>
-
-        <div class="section">
-            <h2><i class="fas fa-shopping-bag"></i> Customer Orders</h2>
-            <div id="ordersList"></div>
-        </div>
-
     </div>
 
     <script type="module">
@@ -104,102 +107,110 @@
             messagingSenderId: "45827037951",
             appId: "1:45827037951:web:545d41703780fa51018aca"
         };
-
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // --- PRODUCT MANAGEMENT ---
-        const productForm = document.getElementById('productForm');
-        productForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const newProduct = {
-                name: document.getElementById('pName').value,
-                price: Number(document.getElementById('pPrice').value),
-                stock: Number(document.getElementById('pStock').value),
-                category: document.getElementById('pCategory').value,
-                image: document.getElementById('pImage').value,
-                description: document.getElementById('pDesc').value,
-                timestamp: Date.now()
-            };
+        // Security Login
+        if(sessionStorage.getItem("auth") !== "ok"){
+            const pass = prompt("Admin Password:");
+            if(pass === "admin123") sessionStorage.setItem("auth", "ok");
+            else window.location.href = "index.html";
+        }
+
+        window.upload = async () => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const bPrice = document.getElementById('bulkPrice').value;
+            const stock = document.getElementById('stock').value;
+            const image = document.getElementById('img').value;
+            const category = document.getElementById('cat').value;
+            const desc = document.getElementById('desc').value;
+
+            if(!name || !price || !stock || !image) return alert("Fill all main fields!");
+            
             try {
-                await addDoc(collection(db, "products"), newProduct);
-                alert("Product Added!");
-                productForm.reset();
-            } catch (err) { alert(err.message); }
+                await addDoc(collection(db, "products"), {
+                    name, 
+                    price: Number(price), 
+                    bulkPrice: Number(bPrice) || Number(price),
+                    stock: Number(stock), 
+                    image, 
+                    category,
+                    description: desc || "No details provided.", 
+                    timestamp: Date.now()
+                });
+                alert("Product is Live!");
+                document.getElementById('name').value = ""; 
+                document.getElementById('price').value = "";
+                document.getElementById('bulkPrice').value = "";
+                document.getElementById('stock').value = ""; 
+                document.getElementById('img').value = "";
+            } catch (e) { alert(e.message); }
         };
 
-        // --- RENDER INVENTORY ---
-        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snap) => {
-            const list = document.getElementById('inventoryList');
-            list.innerHTML = "";
+        // Inventory & Stock Live
+        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
+            const cont = document.getElementById('inv');
+            cont.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                const row = document.createElement('div');
-                row.className = 'item-row';
-                row.innerHTML = `
-                    <div class="item-info">
+                cont.innerHTML += `
+                <div class="inv-item">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
+                    <div class="inv-info">
                         <b>${p.name}</b>
-                        <small>MK ${p.price.toLocaleString()} | ${p.category}</small>
+                        <small>Reg: MK ${p.price.toLocaleString()} | Bulk: MK ${p.bulkPrice ? p.bulkPrice.toLocaleString() : 'N/A'}</small>
                     </div>
-                    <div class="stock-control">
-                        <input type="number" class="stock-input" value="${p.stock}" 
-                            onchange="updateStock('${d.id}', this.value)">
-                        <button class="btn-del" onclick="deleteProduct('${d.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>`;
-                list.appendChild(row);
+                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${d.id}', this.value)">
+                    <button class="btn-del" onclick="del('${d.id}')"><i class="fas fa-trash"></i></button>
+                </div>`;
             });
         });
 
-        window.updateStock = async (id, newStock) => {
-            await updateDoc(doc(db, "products", id), { stock: Number(newStock) });
+        window.updateStock = async (id, val) => {
+            await updateDoc(doc(db, "products", id), { stock: Number(val) });
         };
 
-        window.deleteProduct = async (id) => {
-            if(confirm("Delete product?")) await deleteDoc(doc(db, "products", id));
+        window.del = async (id) => { 
+            if(confirm("Remove this product?")) await deleteDoc(doc(db, "products", id));
         };
 
-        // --- CLEAR ORDERS FUNCTION ---
-        window.clearOrders = async () => {
-            if(confirm("Are you sure? This will delete all order history and reset revenue to zero!")) {
-                const q = query(collection(db, "orders"));
-                const querySnapshot = await getDocs(q);
-                const batch = writeBatch(db);
-                querySnapshot.forEach((doc) => {
-                    batch.delete(doc.ref);
-                });
-                await batch.commit();
-                alert("Order history cleared.");
-            }
-        };
-
-        // --- RENDER ORDERS & REVENUE ---
-        onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), (snap) => {
-            const list = document.getElementById('ordersList');
-            let totalRevenue = 0;
-            let orderCount = 0;
-            list.innerHTML = "";
-            
+        // Orders & Revenue
+        onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
+            const cont = document.getElementById('orders');
+            let rev = 0;
+            cont.innerHTML = "";
             snap.forEach(d => {
                 const o = d.data();
-                totalRevenue += Number(o.total);
-                orderCount++;
-
-                const card = document.createElement('div');
-                card.className = 'order-card';
-                card.innerHTML = `
-                    <span class="order-status pending">${o.status.toUpperCase()}</span>
-                    <p style="margin-top:5px;"><strong>Customer:</strong> ${o.customerName}</p>
-                    <p><strong>Total:</strong> MK ${o.total.toLocaleString()}</p>
-                    <small>${new Date(o.timestamp).toLocaleString()}</small>
-                `;
-                list.appendChild(card);
+                rev += Number(o.total);
+                cont.innerHTML += `
+                <div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${o.customerName}</b>
+                        <small>${new Date(o.timestamp).toLocaleDateString()}</small>
+                    </div>
+                    <div style="font-size:13px; color:var(--primary); font-weight:bold; margin:5px 0;">MK ${Number(o.total).toLocaleString()}</div>
+                    <div style="font-size:12px; color:#666;">${o.items.map(i => i.name + ' (x'+(i.qty||1)+')').join(", ")}</div>
+                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${d.id}')">Mark Delivered</button>` : '<div style="margin-top:10px; font-size:12px; color:green;">✅ Completed</div>'}
+                </div>`;
             });
-
-            document.getElementById('totalRevenue').innerText = `MK ${totalRevenue.toLocaleString()}`;
-            document.getElementById('orderCount').innerText = `${orderCount} Orders Processed`;
+            document.getElementById('totalRevenue').innerText = "MK " + rev.toLocaleString();
         });
+
+        window.mark = async (id) => {
+            await updateDoc(doc(db, "orders", id), { status: "delivered" });
+        };
+
+        window.clearOrders = async () => {
+            if(confirm("Permanently delete ALL order history and reset revenue?")) {
+                const q = query(collection(db, "orders"));
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                alert("History Cleared.");
+            }
+        };
     </script>
 </body>
 </html>
