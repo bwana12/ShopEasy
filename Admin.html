@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ShopEasy | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #e42c64; --secondary: #2a9dcc; }
+        body { background: #f0f2f5; font-family: sans-serif; padding: 20px; }
+        .card { background: white; max-width: 600px; margin: 0 auto 30px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
+        .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; max-width: 900px; margin: 0 auto; }
+        .p-item { background: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; }
+        .order { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--secondary); border-radius: 8px; }
+        .delivered { opacity: 0.5; border-left-color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🚀 Post New Product</h2>
+        <input type="text" id="name" placeholder="Product Name">
+        <input type="number" id="price" placeholder="Price (MWK)">
+        <input type="text" id="img" placeholder="ImgBB Link">
+        <select id="cat">
+            <option value="Electronics">Electronics</option>
+            <option value="Fashion">Fashion</option>
+            <option value="Home">Home</option>
+            <option value="Beauty">Beauty</option>
+        </select>
+        <textarea id="desc" placeholder="Details..."></textarea>
+        <button class="btn-post" onclick="upload()">Publish to ShopEasy</button>
+    </div>
+
+    <h3 style="text-align: center;">📦 Current Inventory</h3><br>
+    <div class="grid" id="inv"></div>
+
+    <h3 style="text-align: center; margin-top: 40px;">🛒 Customer Orders</h3><br>
+    <div style="max-width: 600px; margin: 0 auto;" id="orders"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+            authDomain: "shopeasy-14890.firebaseapp.com",
+            projectId: "shopeasy-14890",
+            storageBucket: "shopeasy-14890.firebasestorage.app",
+            messagingSenderId: "45827037951",
+            appId: "1:45827037951:web:545d41703780fa51018aca"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Simple Lock
+        if(sessionStorage.getItem("auth") !== "ok"){
+            if(prompt("Admin Password:") === "admin123") sessionStorage.setItem("auth", "ok");
+            else window.location.href = "index.html";
+        }
+
+        window.upload = async () => {
+            const name = document.getElementById('name').value;
+            const price = document.getElementById('price').value;
+            const image = document.getElementById('img').value;
+            if(!name || !price || !image) return alert("Fill Name, Price, Image!");
+            
+            await addDoc(collection(db, "products"), {
+                name, price: Number(price), image, category: document.getElementById('cat').value,
+                description: document.getElementById('desc').value, timestamp: Date.now()
+            });
+            alert("Live!");
+            location.reload();
+        };
+
+        onSnapshot(collection(db, "products"), snap => {
+            const cont = document.getElementById('inv');
+            cont.innerHTML = "";
+            snap.forEach(d => {
+                const p = d.data();
+                cont.innerHTML += `<div class="p-item">
+                    <img src="${p.image}" width="100%"><br><b>${p.name}</b><br>
+                    <button onclick="del('${d.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
+                </div>`;
+            });
+        });
+
+        window.del = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
+
+        onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
+            const cont = document.getElementById('orders');
+            cont.innerHTML = "";
+            snap.forEach(d => {
+                const o = d.data();
+                cont.innerHTML += `<div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
+                    <b>${o.customerName}</b> - MK ${o.total.toLocaleString()}<br>
+                    <small>${o.items.map(i => i.name).join(", ")}</small><br>
+                    <button onclick="mark('${d.id}')" style="margin-top:5px; cursor:pointer;">Mark Delivered</button>
+                </div>`;
+            });
+        });
+
+        window.mark = async (id) => await updateDoc(doc(db, "orders", id), { status: "delivered" });
+    </script>
+</body>
+</html>
