@@ -1,43 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"> 
+    <meta charset="UTF-8">
     <title>ShopEasy | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; }
-        body { background: #f0f2f5; font-family: sans-serif; padding: 20px; }
-        .card { background: white; max-width: 600px; margin: 0 auto 30px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; }
-        .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; max-width: 900px; margin: 0 auto; }
-        .p-item { background: white; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; }
-        .order { background: white; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--secondary); border-radius: 8px; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; }
+        
+        /* Admin Card */
+        .card { background: white; max-width: 600px; margin: 0 auto 30px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); }
+        h2 { text-align: center; margin-bottom: 20px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+        .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-post:hover { background: #238bb8; }
+
+        /* Inventory Grid Fix */
+        .section-title { text-align: center; margin: 40px 0 20px; font-size: 22px; }
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 20px; 
+            max-width: 1000px; 
+            margin: 0 auto; 
+        }
+        .p-item { 
+            background: white; 
+            border-radius: 10px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid #eee;
+        }
+        .p-item img { width: 100%; height: 130px; object-fit: cover; }
+        .p-details { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .p-name { font-size: 13px; font-weight: bold; margin-bottom: 5px; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .p-price { color: var(--primary); font-size: 12px; font-weight: bold; margin-bottom: 10px; }
+        
+        .btn-del { 
+            background: #fff0f0; 
+            color: #ff4d4d; 
+            border: 1px solid #ffcccc; 
+            padding: 8px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-size: 11px; 
+            font-weight: bold; 
+            transition: 0.3s;
+        }
+        .btn-del:hover { background: #ff4d4d; color: white; }
+
+        /* Orders Section */
+        .orders-container { max-width: 600px; margin: 0 auto 50px; }
+        .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .delivered { opacity: 0.5; border-left-color: #888; }
+        .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>🚀 Post New Product</h2>
-        <input type="text" id="name" placeholder="Product Name">
+        <input type="text" id="name" placeholder="Product Name (e.g. Gamepad)">
         <input type="number" id="price" placeholder="Price (MWK)">
-        <input type="text" id="img" placeholder="ImgBB Link">
+        <input type="text" id="img" placeholder="ImgBB Link (https://i.ibb.co/...)">
         <select id="cat">
             <option value="Electronics">Electronics</option>
             <option value="Fashion">Fashion</option>
             <option value="Home">Home</option>
             <option value="Beauty">Beauty</option>
         </select>
-        <textarea id="desc" placeholder="Details..."></textarea>
+        <textarea id="desc" placeholder="Product Details/Specs..."></textarea>
         <button class="btn-post" onclick="upload()">Publish to ShopEasy</button>
     </div>
 
-    <h3 style="text-align: center;">📦 Current Inventory</h3><br>
+    <h3 class="section-title">📦 Live Inventory</h3>
     <div class="grid" id="inv"></div>
 
-    <h3 style="text-align: center; margin-top: 40px;">🛒 Customer Orders</h3><br>
-    <div style="max-width: 600px; margin: 0 auto;" id="orders"></div>
+    <h3 class="section-title">🛒 Customer Orders</h3>
+    <div class="orders-container" id="orders"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -54,9 +96,10 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Simple Lock
+        // Session Auth
         if(sessionStorage.getItem("auth") !== "ok"){
-            if(prompt("Admin Password:") === "admin123") sessionStorage.setItem("auth", "ok");
+            const pass = prompt("Admin Password:");
+            if(pass === "admin123") sessionStorage.setItem("auth", "ok");
             else window.location.href = "index.html";
         }
 
@@ -64,44 +107,79 @@
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
             const image = document.getElementById('img').value;
-            if(!name || !price || !image) return alert("Fill Name, Price, Image!");
+            const category = document.getElementById('cat').value;
+            const desc = document.getElementById('desc').value;
+
+            if(!name || !price || !image) return alert("Please fill Name, Price, and Image Link!");
             
-            await addDoc(collection(db, "products"), {
-                name, price: Number(price), image, category: document.getElementById('cat').value,
-                description: document.getElementById('desc').value, timestamp: Date.now()
-            });
-            alert("Live!");
-            location.reload();
+            try {
+                await addDoc(collection(db, "products"), {
+                    name, price: Number(price), image, category,
+                    description: desc || "No details provided.", timestamp: Date.now()
+                });
+                alert("Success! Product is live.");
+                // Reset form
+                document.getElementById('name').value = "";
+                document.getElementById('price').value = "";
+                document.getElementById('img').value = "";
+                document.getElementById('desc').value = "";
+            } catch (e) { alert("Error: " + e.message); }
         };
 
+        // Inventory Real-time Listener
         onSnapshot(collection(db, "products"), snap => {
             const cont = document.getElementById('inv');
             cont.innerHTML = "";
             snap.forEach(d => {
                 const p = d.data();
-                cont.innerHTML += `<div class="p-item">
-                    <img src="${p.image}" width="100%"><br><b>${p.name}</b><br>
-                    <button onclick="del('${d.id}')" style="color:red; border:none; background:none; cursor:pointer;">Delete</button>
+                cont.innerHTML += `
+                <div class="p-item">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'">
+                    <div class="p-details">
+                        <div>
+                            <p class="p-name">${p.name}</p>
+                            <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
+                        </div>
+                        <button class="btn-del" onclick="del('${d.id}')">
+                            <i class="fas fa-trash"></i> DELETE
+                        </button>
+                    </div>
                 </div>`;
             });
         });
 
-        window.del = async (id) => { if(confirm("Delete?")) await deleteDoc(doc(db, "products", id)); };
+        window.del = async (id) => { 
+            if(confirm("Are you sure you want to remove this product?")) {
+                await deleteDoc(doc(db, "products", id));
+            }
+        };
 
+        // Orders Real-time Listener
         onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
             const cont = document.getElementById('orders');
             cont.innerHTML = "";
             snap.forEach(d => {
                 const o = d.data();
-                cont.innerHTML += `<div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
-                    <b>${o.customerName}</b> - MK ${o.total.toLocaleString()}<br>
-                    <small>${o.items.map(i => i.name).join(", ")}</small><br>
-                    <button onclick="mark('${d.id}')" style="margin-top:5px; cursor:pointer;">Mark Delivered</button>
+                cont.innerHTML += `
+                <div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
+                    <div style="display:flex; justify-content:space-between; align-items:start;">
+                        <div>
+                            <b>${o.customerName}</b><br>
+                            <span style="color:var(--primary); font-weight:bold;">MK ${Number(o.total).toLocaleString()}</span>
+                        </div>
+                        <small style="color:#888;">${new Date(o.timestamp).toLocaleDateString()}</small>
+                    </div>
+                    <div style="font-size:13px; color:#555; margin-top:8px;">
+                        ${o.items.map(i => i.name).join(", ")}
+                    </div>
+                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${d.id}')">Mark Delivered</button>` : '✅ Delivered'}
                 </div>`;
             });
         });
 
-        window.mark = async (id) => await updateDoc(doc(db, "orders", id), { status: "delivered" });
+        window.mark = async (id) => {
+            await updateDoc(doc(db, "orders", id), { status: "delivered" });
+        };
     </script>
 </body>
 </html>
