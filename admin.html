@@ -19,10 +19,12 @@
         .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
 
         /* Admin Form Card */
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; transition: 0.3s; }
+        .edit-mode-active { border-top-color: var(--primary); background: #fffdfd; }
         h2 { margin-bottom: 20px; font-size: 1.2rem; }
         input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
         .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-cancel { background: #666; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 14px; display: none; }
 
         /* Layout Grid */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
@@ -44,7 +46,9 @@
         .delivered { opacity: 0.6; border-left-color: #888; background: #f9f9f9; }
         .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; }
         
+        .action-btns { display: flex; gap: 10px; }
         .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 16px; }
+        .btn-edit { color: var(--secondary); border: none; background: none; cursor: pointer; font-size: 16px; }
 
         .row-flex { display: flex; gap: 10px; }
     </style>
@@ -61,8 +65,8 @@
 
     <div class="dashboard-grid">
         <div>
-            <div class="card">
-                <h2>🚀 Post New Product</h2>
+            <div class="card" id="formCard">
+                <h2 id="formTitle">🚀 Post New Product</h2>
                 <input type="text" id="name" placeholder="Product Name">
                 
                 <div class="row-flex">
@@ -82,7 +86,8 @@
 
                 <input type="text" id="img" placeholder="Image Link (https://...)">
                 <textarea id="desc" placeholder="Product Details..."></textarea>
-                <button class="btn-post" onclick="upload()">Publish Product</button>
+                <button class="btn-post" id="submitBtn" onclick="upload()">Publish Product</button>
+                <button class="btn-cancel" id="cancelBtn" onclick="resetForm()">Cancel Editing</button>
             </div>
 
             <h3 class="section-title"><i class="fas fa-shopping-bag"></i> Customer Orders</h3>
@@ -110,10 +115,13 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
+        let editId = null;
+        let productsDataCache = {};
+
         // Security Login
         if(sessionStorage.getItem("auth") !== "ok"){
             const pass = prompt("Admin Password:");
-            if(pass === "admin123") sessionStorage.setItem("auth", "ok");
+            if(pass === "Shop2026") sessionStorage.setItem("auth", "ok");
             else window.location.href = "index.html";
         }
 
@@ -129,31 +137,70 @@
             if(!name || !price || !stock || !image) return alert("Fill all main fields!");
             
             try {
-                await addDoc(collection(db, "products"), {
+                const data = {
                     name, 
                     price: Number(price), 
                     bulkPrice: Number(bPrice) || Number(price),
                     stock: Number(stock), 
                     image, 
                     category,
-                    description: desc || "No details provided.", 
-                    timestamp: Date.now()
-                });
-                alert("Product is Live!");
-                document.getElementById('name').value = ""; 
-                document.getElementById('price').value = "";
-                document.getElementById('bulkPrice').value = "";
-                document.getElementById('stock').value = ""; 
-                document.getElementById('img').value = "";
+                    description: desc || "No details provided."
+                };
+
+                if (editId) {
+                    await updateDoc(doc(db, "products", editId), data);
+                    alert("Product Updated!");
+                    resetForm();
+                } else {
+                    data.timestamp = Date.now();
+                    await addDoc(collection(db, "products"), data);
+                    alert("Product is Live!");
+                    resetForm();
+                }
             } catch (e) { alert(e.message); }
+        };
+
+        window.startEdit = (id) => {
+            const p = productsDataCache[id];
+            editId = id;
+            
+            document.getElementById('name').value = p.name;
+            document.getElementById('price').value = p.price;
+            document.getElementById('bulkPrice').value = p.bulkPrice || p.price;
+            document.getElementById('stock').value = p.stock;
+            document.getElementById('img').value = p.image;
+            document.getElementById('cat').value = p.category;
+            document.getElementById('desc').value = p.description;
+
+            document.getElementById('formTitle').innerText = "✏️ Edit: " + p.name;
+            document.getElementById('submitBtn').innerText = "Update Product";
+            document.getElementById('formCard').classList.add('edit-mode-active');
+            document.getElementById('cancelBtn').style.display = "block";
+            window.scrollTo(0,0);
+        };
+
+        window.resetForm = () => {
+            editId = null;
+            document.getElementById('name').value = ""; 
+            document.getElementById('price').value = "";
+            document.getElementById('bulkPrice').value = "";
+            document.getElementById('stock').value = ""; 
+            document.getElementById('img').value = "";
+            document.getElementById('desc').value = "";
+            document.getElementById('formTitle').innerText = "🚀 Post New Product";
+            document.getElementById('submitBtn').innerText = "Publish Product";
+            document.getElementById('formCard').classList.remove('edit-mode-active');
+            document.getElementById('cancelBtn').style.display = "none";
         };
 
         // Inventory & Stock Live
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
             const cont = document.getElementById('inv');
             cont.innerHTML = "";
+            productsDataCache = {};
             snap.forEach(d => {
                 const p = d.data();
+                productsDataCache[d.id] = p;
                 cont.innerHTML += `
                 <div class="inv-item">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
@@ -162,7 +209,10 @@
                         <small>Reg: MK ${p.price.toLocaleString()} | Bulk: MK ${p.bulkPrice ? p.bulkPrice.toLocaleString() : 'N/A'}</small>
                     </div>
                     <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${d.id}', this.value)">
-                    <button class="btn-del" onclick="del('${d.id}')"><i class="fas fa-trash"></i></button>
+                    <div class="action-btns">
+                        <button class="btn-edit" onclick="startEdit('${d.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-del" onclick="del('${d.id}')"><i class="fas fa-trash"></i></button>
+                    </div>
                 </div>`;
             });
         });
@@ -214,4 +264,3 @@
     </script>
 </body>
 </html>
-
