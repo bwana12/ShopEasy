@@ -6,16 +6,19 @@
     <title>ShopEasy | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; --danger: #dc3545; }
         * { box-sizing: border-box; }
         body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
         
         /* Dashboard Header */
-        header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        header { max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: stretch; flex-wrap: wrap; gap: 15px; }
         
-        /* Revenue Card */
-        .revenue-card { background: var(--success); color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-grow: 1; min-width: 280px; text-align: center; }
-        .revenue-card h1 { margin: 5px 0; font-size: 24px; }
+        /* Revenue & Profit Cards */
+        .stats-container { display: flex; gap: 15px; flex-grow: 1; flex-wrap: wrap; }
+        .stat-card { color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center; }
+        .rev-bg { background: var(--success); }
+        .prof-bg { background: var(--secondary); }
+        .stat-card h1 { margin: 5px 0; font-size: 22px; }
         .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
 
         /* Admin Form Card */
@@ -30,16 +33,21 @@
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
         @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
+        /* Search & Filter Bar */
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-bar input { margin: 0; padding: 8px 12px; }
+
         /* Inventory & Orders Containers */
         .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
         .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
 
         /* Inventory Items */
-        .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; }
+        .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; transition: 0.3s; }
+        .low-stock { border-left: 5px solid var(--danger); background: #fff5f5; }
         .inv-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
         .inv-info { flex-grow: 1; }
         .inv-info b { font-size: 14px; display: block; }
-        .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; }
+        .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; font-weight: bold; border-color: var(--secondary); }
 
         /* Orders */
         .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -51,15 +59,23 @@
         .btn-edit { color: var(--secondary); border: none; background: none; cursor: pointer; font-size: 16px; }
 
         .row-flex { display: flex; gap: 10px; }
+        .badge-low { background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="revenue-card">
-            <p style="margin:0; font-size: 13px; opacity: 0.9;">TOTAL EARNINGS</p>
-            <h1 id="totalRevenue">MK 0</h1>
-            <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset Order History</button>
+        <div class="stats-container">
+            <div class="stat-card rev-bg">
+                <p style="margin:0; font-size: 11px; opacity: 0.9;">TOTAL SALES</p>
+                <h1 id="totalRevenue">MK 0</h1>
+                <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset</button>
+            </div>
+            <div class="stat-card prof-bg">
+                <p style="margin:0; font-size: 11px; opacity: 0.9;">EST. PROFIT</p>
+                <h1 id="totalProfit">MK 0</h1>
+                <small style="font-size: 9px;">(Revenue - Cost Prices)</small>
+            </div>
         </div>
     </header>
 
@@ -70,19 +86,21 @@
                 <input type="text" id="name" placeholder="Product Name">
                 
                 <div class="row-flex">
-                    <input type="number" id="price" placeholder="Normal Price (MK)">
-                    <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
+                    <input type="number" id="price" placeholder="Sale Price (MK)">
+                    <input type="number" id="costPrice" placeholder="Cost Price (MK) - For Profit">
                 </div>
                 
                 <div class="row-flex">
+                    <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
                     <input type="number" id="stock" placeholder="Stock Qty">
-                    <select id="cat">
-                        <option value="Electronics">Electronics</option>
-                        <option value="Fashion">Fashion</option>
-                        <option value="Home">Home</option>
-                        <option value="Beauty">Beauty</option>
-                    </select>
                 </div>
+                
+                <select id="cat">
+                    <option value="Electronics">Electronics</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Home">Home</option>
+                    <option value="Beauty">Beauty</option>
+                </select>
 
                 <input type="text" id="img" placeholder="Image Link (https://...)">
                 <textarea id="desc" placeholder="Product Details..."></textarea>
@@ -91,6 +109,14 @@
             </div>
 
             <h3 class="section-title"><i class="fas fa-shopping-bag"></i> Customer Orders</h3>
+            <div class="filter-bar">
+                <input type="text" id="orderSearch" placeholder="Search by name..." oninput="renderOrders()">
+                <select id="orderFilter" onchange="renderOrders()" style="width: 150px; margin:0;">
+                    <option value="all">All Orders</option>
+                    <option value="pending">Pending</option>
+                    <option value="delivered">Delivered</option>
+                </select>
+            </div>
             <div class="scroll-section" id="orders"></div>
         </div>
 
@@ -117,6 +143,7 @@
 
         let editId = null;
         let productsDataCache = {};
+        let ordersDataCache = [];
 
         // Security Login
         if(sessionStorage.getItem("auth") !== "ok"){
@@ -128,6 +155,7 @@
         window.upload = async () => {
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
+            const costPrice = document.getElementById('costPrice').value;
             const bPrice = document.getElementById('bulkPrice').value;
             const stock = document.getElementById('stock').value;
             const image = document.getElementById('img').value;
@@ -140,6 +168,7 @@
                 const data = {
                     name, 
                     price: Number(price), 
+                    costPrice: Number(costPrice) || 0,
                     bulkPrice: Number(bPrice) || Number(price),
                     stock: Number(stock), 
                     image, 
@@ -150,22 +179,21 @@
                 if (editId) {
                     await updateDoc(doc(db, "products", editId), data);
                     alert("Product Updated!");
-                    resetForm();
                 } else {
                     data.timestamp = Date.now();
                     await addDoc(collection(db, "products"), data);
                     alert("Product is Live!");
-                    resetForm();
                 }
+                resetForm();
             } catch (e) { alert(e.message); }
         };
 
         window.startEdit = (id) => {
             const p = productsDataCache[id];
             editId = id;
-            
             document.getElementById('name').value = p.name;
             document.getElementById('price').value = p.price;
+            document.getElementById('costPrice').value = p.costPrice || 0;
             document.getElementById('bulkPrice').value = p.bulkPrice || p.price;
             document.getElementById('stock').value = p.stock;
             document.getElementById('img').value = p.image;
@@ -181,19 +209,14 @@
 
         window.resetForm = () => {
             editId = null;
-            document.getElementById('name').value = ""; 
-            document.getElementById('price').value = "";
-            document.getElementById('bulkPrice').value = "";
-            document.getElementById('stock').value = ""; 
-            document.getElementById('img').value = "";
-            document.getElementById('desc').value = "";
+            document.querySelectorAll('#formCard input, #formCard textarea').forEach(i => i.value = "");
             document.getElementById('formTitle').innerText = "🚀 Post New Product";
             document.getElementById('submitBtn').innerText = "Publish Product";
             document.getElementById('formCard').classList.remove('edit-mode-active');
             document.getElementById('cancelBtn').style.display = "none";
         };
 
-        // Inventory & Stock Live
+        // Inventory & Stock (Features: Low Stock Alert, Bulk Update)
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
             const cont = document.getElementById('inv');
             cont.innerHTML = "";
@@ -201,12 +224,13 @@
             snap.forEach(d => {
                 const p = d.data();
                 productsDataCache[d.id] = p;
+                const isLow = p.stock <= 3;
                 cont.innerHTML += `
-                <div class="inv-item">
+                <div class="inv-item ${isLow ? 'low-stock' : ''}">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
                     <div class="inv-info">
-                        <b>${p.name}</b>
-                        <small>Reg: MK ${p.price.toLocaleString()} | Bulk: MK ${p.bulkPrice ? p.bulkPrice.toLocaleString() : 'N/A'}</small>
+                        <b>${p.name} ${isLow ? '<span class="badge-low">LOW STOCK</span>' : ''}</b>
+                        <small>Sale: MK ${p.price.toLocaleString()} | Cost: MK ${p.costPrice ? p.costPrice.toLocaleString() : '0'}</small>
                     </div>
                     <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${d.id}', this.value)">
                     <div class="action-btns">
@@ -215,6 +239,7 @@
                     </div>
                 </div>`;
             });
+            calculateProfit();
         });
 
         window.updateStock = async (id, val) => {
@@ -225,14 +250,24 @@
             if(confirm("Remove this product?")) await deleteDoc(doc(db, "products", id));
         };
 
-        // Orders & Revenue
+        // Orders (Features: Search, Filter, Profit Calc)
         onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
+            ordersDataCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderOrders();
+            calculateProfit();
+        });
+
+        window.renderOrders = () => {
             const cont = document.getElementById('orders');
-            let rev = 0;
+            const search = document.getElementById('orderSearch').value.toLowerCase();
+            const filter = document.getElementById('orderFilter').value;
+            
             cont.innerHTML = "";
-            snap.forEach(d => {
-                const o = d.data();
-                rev += Number(o.total);
+            ordersDataCache.filter(o => {
+                const matchSearch = o.customerName.toLowerCase().includes(search);
+                const matchFilter = filter === 'all' || (filter === 'pending' && o.status !== 'delivered') || (filter === 'delivered' && o.status === 'delivered');
+                return matchSearch && matchFilter;
+            }).forEach(o => {
                 cont.innerHTML += `
                 <div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
                     <div style="display:flex; justify-content:space-between;">
@@ -241,18 +276,37 @@
                     </div>
                     <div style="font-size:13px; color:var(--primary); font-weight:bold; margin:5px 0;">MK ${Number(o.total).toLocaleString()}</div>
                     <div style="font-size:12px; color:#666;">${o.items.map(i => i.name + ' (x'+(i.qty||1)+')').join(", ")}</div>
-                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${d.id}')">Mark Delivered</button>` : '<div style="margin-top:10px; font-size:12px; color:green;">✅ Completed</div>'}
+                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${o.id}')">Mark Delivered</button>` : '<div style="margin-top:10px; font-size:12px; color:green;">✅ Completed</div>'}
                 </div>`;
             });
-            document.getElementById('totalRevenue').innerText = "MK " + rev.toLocaleString();
-        });
+        };
+
+        window.calculateProfit = () => {
+            let totalRev = 0;
+            let totalProfit = 0;
+
+            ordersDataCache.forEach(order => {
+                totalRev += Number(order.total);
+                
+                // Calculate profit for each item in order if we have cost data
+                order.items.forEach(item => {
+                    const productInfo = Object.values(productsDataCache).find(p => p.name === item.name);
+                    const cost = productInfo ? (productInfo.costPrice || 0) : 0;
+                    const pricePaid = item.price || (productInfo ? productInfo.price : 0);
+                    totalProfit += (pricePaid - cost) * (item.qty || 1);
+                });
+            });
+
+            document.getElementById('totalRevenue').innerText = "MK " + totalRev.toLocaleString();
+            document.getElementById('totalProfit').innerText = "MK " + totalProfit.toLocaleString();
+        };
 
         window.mark = async (id) => {
             await updateDoc(doc(db, "orders", id), { status: "delivered" });
         };
 
         window.clearOrders = async () => {
-            if(confirm("Permanently delete ALL order history and reset revenue?")) {
+            if(confirm("Permanently delete ALL order history?")) {
                 const q = query(collection(db, "orders"));
                 const snap = await getDocs(q);
                 const batch = writeBatch(db);
