@@ -234,12 +234,15 @@
         <hr><br>
         
         <div class="tracker-section">
-            <h4 style="font-size:12px; margin-bottom:8px;">📦 Track Your Order</h4>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h4 style="font-size:12px;">📦 Track Your Order</h4>
+                <button id="hide-track-btn" onclick="hideTrackResult()" style="display:none; border:none; background:none; color:var(--primary); font-size:10px; font-weight:bold; cursor:pointer;">Hide</button>
+            </div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="track-name" placeholder="Your Name" style="flex:1; padding:8px; border-radius:5px; border:1px solid var(--border); font-size:12px;">
+                <input type="text" id="track-name" placeholder="Name on order" style="flex:1; padding:8px; border-radius:5px; border:1px solid var(--border); font-size:12px; outline:none; background: var(--bg); color: var(--text);">
                 <button class="promo-btn" onclick="trackOrder()">Track</button>
             </div>
-            <div id="track-result" style="margin-top:10px; font-size:12px; font-weight:bold;"></div>
+            <div id="track-result" style="margin-top:10px; font-size:12px; font-weight:bold; transition: 0.3s;"></div>
         </div>
 
         <div id="cart-items-list"></div>
@@ -401,21 +404,48 @@
             document.getElementById('final-fields').style.display = 'block';
         };
 
+        // TRACKER WITH HIDE FEATURE
         window.trackOrder = async () => {
-            const name = document.getElementById('track-name').value.trim();
+            const nameInput = document.getElementById('track-name').value.trim().toLowerCase();
             const resDiv = document.getElementById('track-result');
-            if(!name) return alert("Enter your name!");
+            const hideBtn = document.getElementById('hide-track-btn');
+            
+            if(!nameInput) return alert("Please enter the name used for the order!");
             
             resDiv.innerHTML = "Searching...";
-            const q = query(collection(db, "orders"), where("customerName", "==", name), orderBy("timestamp", "desc"));
-            const snap = await getDocs(q);
-            
-            if(snap.empty) resDiv.innerHTML = "❌ No order found.";
-            else {
-                const order = snap.docs[0].data();
-                const status = order.status === 'delivered' ? '✅ Delivered' : '⏳ Pending Delivery';
-                resDiv.innerHTML = `Last Order Status: ${status}`;
+            resDiv.style.color = "var(--text)";
+
+            try {
+                const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+                const snap = await getDocs(q);
+                
+                let foundOrder = null;
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    if (data.customerName && data.customerName.toLowerCase() === nameInput) {
+                        if (!foundOrder) foundOrder = data;
+                    }
+                });
+                
+                if(!foundOrder) {
+                    resDiv.innerHTML = "❌ No order found for this name.";
+                    resDiv.style.color = "#f44336";
+                } else {
+                    const statusText = foundOrder.status === 'delivered' ? '✅ Delivered' : '⏳ Pending Delivery';
+                    resDiv.innerHTML = `Status: ${statusText}`;
+                    resDiv.style.color = foundOrder.status === 'delivered' ? "var(--success)" : "var(--secondary)";
+                    hideBtn.style.display = 'block'; // Show Hide button
+                }
+            } catch (e) { 
+                console.error(e);
+                resDiv.innerHTML = "Error searching. Try again."; 
             }
+        };
+
+        window.hideTrackResult = () => {
+            document.getElementById('track-result').innerHTML = "";
+            document.getElementById('track-name').value = "";
+            document.getElementById('hide-track-btn').style.display = 'none';
         };
 
         function updateCartUI() {
@@ -525,7 +555,7 @@
             document.getElementById('productModal').style.display = 'flex';
         };
 
-        window.showDetailsByID = (id) => showDetails(allProducts.find(item => item.id === id), "4.9");
+        window.showDetailsByID = (id) => showDetails(allProducts.find(item => id === item.id), "4.9");
         window.closeModal = () => document.getElementById('productModal').style.display = 'none';
         window.toggleCart = () => {
             document.getElementById('cart-sidebar').classList.toggle('active');
@@ -539,3 +569,4 @@
     </script>
 </body>
 </html>
+
