@@ -2,101 +2,102 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ShopEasy | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; }
-        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; }
+        * { box-sizing: border-box; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
         
-        /* Admin Card */
-        .card { background: white; max-width: 600px; margin: 0 auto 30px; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); }
-        h2 { text-align: center; margin-bottom: 20px; }
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; }
+        /* Dashboard Header */
+        header { max-width: 1000px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        
+        /* Revenue Card */
+        .revenue-card { background: var(--success); color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-grow: 1; min-width: 280px; text-align: center; }
+        .revenue-card h1 { margin: 5px 0; font-size: 24px; }
+        .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
+
+        /* Admin Form Card */
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; }
+        h2 { margin-bottom: 20px; font-size: 1.2rem; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; font-size: 14px; outline: none; }
         .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .btn-post:hover { background: #238bb8; }
-        .btn-cancel { background: #eee; color: #333; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 14px; display: none; }
 
-        /* Inventory Grid Fix */
-        .section-title { text-align: center; margin: 40px 0 20px; font-size: 22px; }
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
-            gap: 20px; 
-            max-width: 1000px; 
-            margin: 0 auto; 
-        }
-        .p-item { 
-            background: white; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
-            display: flex; 
-            flex-direction: column; 
-            border: 1px solid #eee;
-        }
-        .p-item img { width: 100%; height: 130px; object-fit: cover; }
-        .p-details { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .p-name { font-size: 13px; font-weight: bold; margin-bottom: 5px; height: 34px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-        .p-price { color: var(--primary); font-size: 12px; font-weight: bold; margin-bottom: 10px; }
-        
-        .action-btns { display: flex; gap: 5px; margin-top: 10px; }
-        .btn-del { 
-            background: #fff0f0; 
-            color: #ff4d4d; 
-            border: 1px solid #ffcccc; 
-            padding: 8px; 
-            border-radius: 6px; 
-            cursor: pointer; 
-            font-size: 11px; 
-            font-weight: bold; 
-            flex: 1;
-        }
-        .btn-edit {
-            background: #f0f7ff;
-            color: var(--secondary);
-            border: 1px solid #cce5ff;
-            padding: 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-            flex: 1;
-        }
+        /* Layout Grid */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
+        @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        /* Orders Section */
-        .orders-container { max-width: 600px; margin: 0 auto 50px; }
+        /* Inventory & Orders Containers */
+        .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
+        .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+
+        /* Inventory Items */
+        .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; }
+        .inv-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .inv-info { flex-grow: 1; }
+        .inv-info b { font-size: 14px; display: block; }
+        .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; }
+
+        /* Orders */
         .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .delivered { opacity: 0.5; border-left-color: #888; }
-        .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; font-weight: bold; }
+        .delivered { opacity: 0.6; border-left-color: #888; background: #f9f9f9; }
+        .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; }
+        
+        .btn-del { color: #ff4d4d; border: none; background: none; cursor: pointer; font-size: 16px; }
+
+        .row-flex { display: flex; gap: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="card" id="form-card">
-        <h2 id="admin-title">🚀 Post New Product</h2>
-        <input type="text" id="name" placeholder="Product Name (e.g. Gamepad)">
-        <input type="number" id="price" placeholder="Price (MWK)">
-        <input type="text" id="img" placeholder="ImgBB Link (https://i.ibb.co/...)">
-        <select id="cat">
-            <option value="Electronics">Electronics</option>
-            <option value="Fashion">Fashion</option>
-            <option value="Home">Home</option>
-            <option value="Beauty">Beauty</option>
-        </select>
-        <textarea id="desc" placeholder="Product Details/Specs..."></textarea>
-        <button class="btn-post" id="main-btn" onclick="handleSubmission()">Publish to ShopEasy</button>
-        <button class="btn-cancel" id="cancel-btn" onclick="resetForm()">Cancel Edit</button>
+    <header>
+        <div class="revenue-card">
+            <p style="margin:0; font-size: 13px; opacity: 0.9;">TOTAL EARNINGS</p>
+            <h1 id="totalRevenue">MK 0</h1>
+            <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset Order History</button>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <div>
+            <div class="card">
+                <h2>🚀 Post New Product</h2>
+                <input type="text" id="name" placeholder="Product Name">
+                
+                <div class="row-flex">
+                    <input type="number" id="price" placeholder="Normal Price (MK)">
+                    <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
+                </div>
+                
+                <div class="row-flex">
+                    <input type="number" id="stock" placeholder="Stock Qty">
+                    <select id="cat">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Home">Home</option>
+                        <option value="Beauty">Beauty</option>
+                    </select>
+                </div>
+
+                <input type="text" id="img" placeholder="Image Link (https://...)">
+                <textarea id="desc" placeholder="Product Details..."></textarea>
+                <button class="btn-post" onclick="upload()">Publish Product</button>
+            </div>
+
+            <h3 class="section-title"><i class="fas fa-shopping-bag"></i> Customer Orders</h3>
+            <div class="scroll-section" id="orders"></div>
+        </div>
+
+        <div>
+            <h3 class="section-title"><i class="fas fa-boxes"></i> Inventory & Stock</h3>
+            <div class="scroll-section" id="inv"></div>
+        </div>
     </div>
-
-    <h3 class="section-title">📦 Live Inventory</h3>
-    <div class="grid" id="inv"></div>
-
-    <h3 class="section-title">🛒 Customer Orders</h3>
-    <div class="orders-container" id="orders"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -109,131 +110,108 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        let editId = null;
-        let productsData = {};
-
-        // Session Auth
+        // Security Login
         if(sessionStorage.getItem("auth") !== "ok"){
             const pass = prompt("Admin Password:");
-            if(pass === "Shop2026") sessionStorage.setItem("auth", "ok");
+            if(pass === "admin123") sessionStorage.setItem("auth", "ok");
             else window.location.href = "index.html";
         }
 
-        window.handleSubmission = async () => {
+        window.upload = async () => {
             const name = document.getElementById('name').value;
             const price = document.getElementById('price').value;
+            const bPrice = document.getElementById('bulkPrice').value;
+            const stock = document.getElementById('stock').value;
             const image = document.getElementById('img').value;
             const category = document.getElementById('cat').value;
             const desc = document.getElementById('desc').value;
 
-            if(!name || !price || !image) return alert("Please fill Name, Price, and Image Link!");
+            if(!name || !price || !stock || !image) return alert("Fill all main fields!");
             
             try {
-                if(editId) {
-                    // Update Logic
-                    await updateDoc(doc(db, "products", editId), {
-                        name, price: Number(price), image, category,
-                        description: desc || "No details provided."
-                    });
-                    alert("Product updated successfully!");
-                } else {
-                    // Create Logic
-                    await addDoc(collection(db, "products"), {
-                        name, price: Number(price), image, category,
-                        description: desc || "No details provided.", timestamp: Date.now()
-                    });
-                    alert("Success! Product is live.");
-                }
-                resetForm();
-            } catch (e) { alert("Error: " + e.message); }
+                await addDoc(collection(db, "products"), {
+                    name, 
+                    price: Number(price), 
+                    bulkPrice: Number(bPrice) || Number(price),
+                    stock: Number(stock), 
+                    image, 
+                    category,
+                    description: desc || "No details provided.", 
+                    timestamp: Date.now()
+                });
+                alert("Product is Live!");
+                document.getElementById('name').value = ""; 
+                document.getElementById('price').value = "";
+                document.getElementById('bulkPrice').value = "";
+                document.getElementById('stock').value = ""; 
+                document.getElementById('img').value = "";
+            } catch (e) { alert(e.message); }
         };
 
-        window.startEdit = (id) => {
-            const p = productsData[id];
-            editId = id;
-            
-            // Fill Form
-            document.getElementById('name').value = p.name;
-            document.getElementById('price').value = p.price;
-            document.getElementById('img').value = p.image;
-            document.getElementById('cat').value = p.category;
-            document.getElementById('desc').value = p.description;
-
-            // UI Changes
-            document.getElementById('admin-title').innerText = "✏️ Edit Product";
-            document.getElementById('main-btn').innerText = "Update Product";
-            document.getElementById('cancel-btn').style.display = "block";
-            window.scrollTo(0,0);
-        };
-
-        window.resetForm = () => {
-            editId = null;
-            document.getElementById('name').value = "";
-            document.getElementById('price').value = "";
-            document.getElementById('img').value = "";
-            document.getElementById('desc').value = "";
-            document.getElementById('admin-title').innerText = "🚀 Post New Product";
-            document.getElementById('main-btn').innerText = "Publish to ShopEasy";
-            document.getElementById('cancel-btn').style.display = "none";
-        };
-
-        // Inventory Real-time Listener
-        onSnapshot(collection(db, "products"), snap => {
+        // Inventory & Stock Live
+        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
             const cont = document.getElementById('inv');
             cont.innerHTML = "";
-            productsData = {}; // Clear cache
             snap.forEach(d => {
                 const p = d.data();
-                productsData[d.id] = p; // Store for editing
                 cont.innerHTML += `
-                <div class="p-item">
-                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="p-details">
-                        <div>
-                            <p class="p-name">${p.name}</p>
-                            <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
-                        </div>
-                        <div class="action-btns">
-                            <button class="btn-edit" onclick="startEdit('${d.id}')">EDIT</button>
-                            <button class="btn-del" onclick="del('${d.id}')">DEL</button>
-                        </div>
+                <div class="inv-item">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
+                    <div class="inv-info">
+                        <b>${p.name}</b>
+                        <small>Reg: MK ${p.price.toLocaleString()} | Bulk: MK ${p.bulkPrice ? p.bulkPrice.toLocaleString() : 'N/A'}</small>
                     </div>
+                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${d.id}', this.value)">
+                    <button class="btn-del" onclick="del('${d.id}')"><i class="fas fa-trash"></i></button>
                 </div>`;
             });
         });
 
-        window.del = async (id) => { 
-            if(confirm("Are you sure you want to remove this product?")) {
-                await deleteDoc(doc(db, "products", id));
-            }
+        window.updateStock = async (id, val) => {
+            await updateDoc(doc(db, "products", id), { stock: Number(val) });
         };
 
-        // Orders Real-time Listener
+        window.del = async (id) => { 
+            if(confirm("Remove this product?")) await deleteDoc(doc(db, "products", id));
+        };
+
+        // Orders & Revenue
         onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
             const cont = document.getElementById('orders');
+            let rev = 0;
             cont.innerHTML = "";
             snap.forEach(d => {
                 const o = d.data();
+                rev += Number(o.total);
                 cont.innerHTML += `
                 <div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
-                    <div style="display:flex; justify-content:space-between; align-items:start;">
-                        <div>
-                            <b>${o.customerName}</b><br>
-                            <span style="color:var(--primary); font-weight:bold;">MK ${Number(o.total).toLocaleString()}</span>
-                        </div>
-                        <small style="color:#888;">${new Date(o.timestamp).toLocaleDateString()}</small>
+                    <div style="display:flex; justify-content:space-between;">
+                        <b>${o.customerName}</b>
+                        <small>${new Date(o.timestamp).toLocaleDateString()}</small>
                     </div>
-                    <div style="font-size:13px; color:#555; margin-top:8px;">
-                        ${o.items.map(i => i.name).join(", ")}
-                    </div>
-                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${d.id}')">Mark Delivered</button>` : '✅ Delivered'}
+                    <div style="font-size:13px; color:var(--primary); font-weight:bold; margin:5px 0;">MK ${Number(o.total).toLocaleString()}</div>
+                    <div style="font-size:12px; color:#666;">${o.items.map(i => i.name + ' (x'+(i.qty||1)+')').join(", ")}</div>
+                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${d.id}')">Mark Delivered</button>` : '<div style="margin-top:10px; font-size:12px; color:green;">✅ Completed</div>'}
                 </div>`;
             });
+            document.getElementById('totalRevenue').innerText = "MK " + rev.toLocaleString();
         });
 
         window.mark = async (id) => {
             await updateDoc(doc(db, "orders", id), { status: "delivered" });
         };
+
+        window.clearOrders = async () => {
+            if(confirm("Permanently delete ALL order history and reset revenue?")) {
+                const q = query(collection(db, "orders"));
+                const snap = await getDocs(q);
+                const batch = writeBatch(db);
+                snap.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                alert("History Cleared.");
+            }
+        };
     </script>
 </body>
 </html>
+
