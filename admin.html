@@ -10,16 +10,35 @@
         * { box-sizing: border-box; }
         body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
         
+        /* Login Screen Overlay */
+        #login-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg); display: flex; align-items: center; justify-content: center;
+            z-index: 9999;
+        }
+        .login-card {
+            background: white; padding: 40px; border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px;
+        }
+        .login-card .logo { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
+        .login-card input { margin-bottom: 15px; text-align: center; }
+
         /* Dashboard Header */
         header { max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: stretch; flex-wrap: wrap; gap: 15px; }
         
         /* Revenue & Profit Cards */
-        .stats-container { display: flex; gap: 15px; flex-grow: 1; flex-wrap: wrap; }
-        .stat-card { color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center; }
+        .stats-container { display: flex; gap: 15px; flex-grow: 1; flex-wrap: wrap; align-items: flex-start; }
+        .stat-card { color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center; position: relative; }
         .rev-bg { background: var(--success); }
         .prof-bg { background: var(--secondary); }
         .stat-card h1 { margin: 5px 0; font-size: 22px; }
         .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
+        
+        /* Logout & Export Buttons */
+        .btn-logout { background: white; color: var(--danger); border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
+        .btn-logout:hover { background: #fee; }
+        .btn-export { background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #444; }
+        .btn-export:hover { background: #f0f0f0; }
 
         /* Admin Form Card */
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; transition: 0.3s; }
@@ -34,12 +53,12 @@
         @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
         /* Search & Filter Bar */
-        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .filter-bar input { margin: 0; padding: 8px 12px; }
 
         /* Inventory & Orders Containers */
         .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
-        .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
         /* Inventory Items */
         .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; transition: 0.3s; }
@@ -64,65 +83,84 @@
 </head>
 <body>
 
-    <header>
-        <div class="stats-container">
-            <div class="stat-card rev-bg">
-                <p style="margin:0; font-size: 11px; opacity: 0.9;">TOTAL SALES</p>
-                <h1 id="totalRevenue">MK 0</h1>
-                <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset</button>
-            </div>
-            <div class="stat-card prof-bg">
-                <p style="margin:0; font-size: 11px; opacity: 0.9;">EST. PROFIT</p>
-                <h1 id="totalProfit">MK 0</h1>
-                <small style="font-size: 9px;">(Revenue - Cost Prices)</small>
-            </div>
+    <div id="login-screen">
+        <div class="login-card">
+            <div class="logo">ShopEasy Admin</div>
+            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter your password to continue</p>
+            <input type="password" id="admin-pass" placeholder="Password">
+            <button class="btn-post" onclick="checkLogin()">Login to Dashboard</button>
+            <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px; display:none;">Incorrect Password!</p>
         </div>
-    </header>
+    </div>
 
-    <div class="dashboard-grid">
-        <div>
-            <div class="card" id="formCard">
-                <h2 id="formTitle">🚀 Post New Product</h2>
-                <input type="text" id="name" placeholder="Product Name">
-                
-                <div class="row-flex">
-                    <input type="number" id="price" placeholder="Sale Price (MK)">
-                    <input type="number" id="costPrice" placeholder="Cost Price (MK) - For Profit">
+    <div id="admin-dashboard" style="display: none;">
+        <header>
+            <div class="stats-container">
+                <div class="stat-card rev-bg">
+                    <p style="margin:0; font-size: 11px; opacity: 0.9;">TOTAL SALES</p>
+                    <h1 id="totalRevenue">MK 0</h1>
+                    <button class="btn-clear" onclick="clearOrders()"><i class="fas fa-eraser"></i> Reset</button>
                 </div>
-                
-                <div class="row-flex">
-                    <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
-                    <input type="number" id="stock" placeholder="Stock Qty">
+                <div class="stat-card prof-bg">
+                    <p style="margin:0; font-size: 11px; opacity: 0.9;">EST. PROFIT</p>
+                    <h1 id="totalProfit">MK 0</h1>
+                    <small style="font-size: 9px;">(Revenue - Cost Prices)</small>
                 </div>
-                
-                <select id="cat">
-                    <option value="Electronics">Electronics</option>
-                    <option value="Fashion">Fashion</option>
-                    <option value="Home">Home</option>
-                    <option value="Beauty">Beauty</option>
-                </select>
+                <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </header>
 
-                <input type="text" id="img" placeholder="Image Link (https://...)">
-                <textarea id="desc" placeholder="Product Details..."></textarea>
-                <button class="btn-post" id="submitBtn" onclick="upload()">Publish Product</button>
-                <button class="btn-cancel" id="cancelBtn" onclick="resetForm()">Cancel Editing</button>
+        <div class="dashboard-grid">
+            <div>
+                <div class="card" id="formCard">
+                    <h2 id="formTitle">🚀 Post New Product</h2>
+                    <input type="text" id="name" placeholder="Product Name">
+                    
+                    <div class="row-flex">
+                        <input type="number" id="price" placeholder="Sale Price (MK)">
+                        <input type="number" id="costPrice" placeholder="Cost Price (MK) - For Profit">
+                    </div>
+                    
+                    <div class="row-flex">
+                        <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
+                        <input type="number" id="stock" placeholder="Stock Qty">
+                    </div>
+                    
+                    <select id="cat">
+                        <option value="Electronics">Electronics</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Home">Home</option>
+                        <option value="Beauty">Beauty</option>
+                    </select>
+
+                    <input type="text" id="img" placeholder="Image Link (https://...)">
+                    <textarea id="desc" placeholder="Product Details..."></textarea>
+                    <button class="btn-post" id="submitBtn" onclick="upload()">Publish Product</button>
+                    <button class="btn-cancel" id="cancelBtn" onclick="resetForm()">Cancel Editing</button>
+                </div>
+
+                <h3 class="section-title">
+                    <span><i class="fas fa-shopping-bag"></i> Customer Orders</span>
+                    <button class="btn-export" onclick="exportOrders()"><i class="fas fa-file-export"></i> Export Sales</button>
+                </h3>
+                <div class="filter-bar">
+                    <input type="text" id="orderSearch" placeholder="Search by name..." oninput="renderOrders()">
+                    <select id="orderFilter" onchange="renderOrders()" style="width: 150px; margin:0;">
+                        <option value="all">All Orders</option>
+                        <option value="pending">Pending</option>
+                        <option value="delivered">Delivered</option>
+                    </select>
+                </div>
+                <div class="scroll-section" id="orders"></div>
             </div>
 
-            <h3 class="section-title"><i class="fas fa-shopping-bag"></i> Customer Orders</h3>
-            <div class="filter-bar">
-                <input type="text" id="orderSearch" placeholder="Search by name..." oninput="renderOrders()">
-                <select id="orderFilter" onchange="renderOrders()" style="width: 150px; margin:0;">
-                    <option value="all">All Orders</option>
-                    <option value="pending">Pending</option>
-                    <option value="delivered">Delivered</option>
-                </select>
+            <div>
+                <h3 class="section-title"><span><i class="fas fa-boxes"></i> Inventory & Stock</span></h3>
+                <div class="filter-bar">
+                    <input type="text" id="invSearch" placeholder="Search products..." oninput="renderInventory()">
+                </div>
+                <div class="scroll-section" id="inv"></div>
             </div>
-            <div class="scroll-section" id="orders"></div>
-        </div>
-
-        <div>
-            <h3 class="section-title"><i class="fas fa-boxes"></i> Inventory & Stock</h3>
-            <div class="scroll-section" id="inv"></div>
         </div>
     </div>
 
@@ -145,11 +183,27 @@
         let productsDataCache = {};
         let ordersDataCache = [];
 
-        // Security Login
-        if(sessionStorage.getItem("auth") !== "ok"){
-            const pass = prompt("Admin Password:");
-            if(pass === "Shop2026") sessionStorage.setItem("auth", "ok");
-            else window.location.href = "index.html";
+        window.checkLogin = () => {
+            const pass = document.getElementById('admin-pass').value;
+            if(pass === "@bwanamwase1") {
+                sessionStorage.setItem("auth", "ok");
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+            }
+        }
+
+        window.logout = () => {
+            if(confirm("Are you sure you want to logout?")) {
+                sessionStorage.removeItem("auth");
+                window.location.reload();
+            }
+        }
+
+        if(sessionStorage.getItem("auth") === "ok"){
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('admin-dashboard').style.display = 'block';
         }
 
         window.upload = async () => {
@@ -216,14 +270,23 @@
             document.getElementById('cancelBtn').style.display = "none";
         };
 
-        // Inventory & Stock (Features: Low Stock Alert, Bulk Update)
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
-            const cont = document.getElementById('inv');
-            cont.innerHTML = "";
             productsDataCache = {};
             snap.forEach(d => {
-                const p = d.data();
-                productsDataCache[d.id] = p;
+                productsDataCache[d.id] = { ...d.data(), id: d.id };
+            });
+            renderInventory();
+            calculateProfit();
+        });
+
+        window.renderInventory = () => {
+            const cont = document.getElementById('inv');
+            const search = document.getElementById('invSearch').value.toLowerCase();
+            cont.innerHTML = "";
+            
+            Object.values(productsDataCache).filter(p => 
+                p.name.toLowerCase().includes(search)
+            ).forEach(p => {
                 const isLow = p.stock <= 3;
                 cont.innerHTML += `
                 <div class="inv-item ${isLow ? 'low-stock' : ''}">
@@ -232,15 +295,14 @@
                         <b>${p.name} ${isLow ? '<span class="badge-low">LOW STOCK</span>' : ''}</b>
                         <small>Sale: MK ${p.price.toLocaleString()} | Cost: MK ${p.costPrice ? p.costPrice.toLocaleString() : '0'}</small>
                     </div>
-                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${d.id}', this.value)">
+                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">
                     <div class="action-btns">
-                        <button class="btn-edit" onclick="startEdit('${d.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-del" onclick="del('${d.id}')"><i class="fas fa-trash"></i></button>
+                        <button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="btn-del" onclick="del('${p.id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>`;
             });
-            calculateProfit();
-        });
+        };
 
         window.updateStock = async (id, val) => {
             await updateDoc(doc(db, "products", id), { stock: Number(val) });
@@ -250,7 +312,6 @@
             if(confirm("Remove this product?")) await deleteDoc(doc(db, "products", id));
         };
 
-        // Orders (Features: Search, Filter, Profit Calc)
         onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
             ordersDataCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderOrders();
@@ -287,8 +348,6 @@
 
             ordersDataCache.forEach(order => {
                 totalRev += Number(order.total);
-                
-                // Calculate profit for each item in order if we have cost data
                 order.items.forEach(item => {
                     const productInfo = Object.values(productsDataCache).find(p => p.name === item.name);
                     const cost = productInfo ? (productInfo.costPrice || 0) : 0;
@@ -303,6 +362,23 @@
 
         window.mark = async (id) => {
             await updateDoc(doc(db, "orders", id), { status: "delivered" });
+        };
+
+        window.exportOrders = () => {
+            if(ordersDataCache.length === 0) return alert("No orders to export.");
+            let csvContent = "data:text/csv;charset=utf-8,Date,Customer,Items,Total(MK),Status\n";
+            ordersDataCache.forEach(o => {
+                const date = new Date(o.timestamp).toLocaleDateString().replace(/,/g, "");
+                const items = o.items.map(i => `${i.name}(x${i.qty||1})`).join(" | ");
+                csvContent += `${date},${o.customerName},${items},${o.total},${o.status || 'pending'}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `ShopEasy_Sales_${new Date().toLocaleDateString()}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         };
 
         window.clearOrders = async () => {
