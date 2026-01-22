@@ -23,6 +23,14 @@
         .login-card .logo { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
         .login-card input { margin-bottom: 15px; text-align: center; }
 
+        /* Order Notification Toast */
+        #order-toast {
+            position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white;
+            padding: 15px 25px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none; z-index: 10000; animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
         /* Dashboard Header */
         header { max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: stretch; flex-wrap: wrap; gap: 15px; }
         
@@ -31,15 +39,19 @@
         .stat-card { color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center; position: relative; }
         .rev-bg { background: var(--success); }
         .prof-bg { background: var(--secondary); }
+        .best-bg { background: #6f42c1; }
         .stat-card h1 { margin: 5px 0; font-size: 22px; }
         .btn-clear { background: rgba(255,255,255,0.2); border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; font-size: 11px; cursor: pointer; margin-top: 5px; }
         
-        /* Logout & Export Buttons */
-        .btn-logout { background: white; color: var(--danger); border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
-        .btn-logout:hover { background: #fee; }
-        .btn-export { background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #444; }
-        .btn-export:hover { background: #f0f0f0; }
+        .btn-summary { background: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
+        
+        /* Restock Alert Style */
+        .restock-alert { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; align-items: center; gap: 8px; height: fit-content; align-self: center; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
+        .btn-logout { background: white; color: var(--danger); border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
+        .btn-export { background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #444; }
+        
         /* Admin Form Card */
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; transition: 0.3s; }
         .edit-mode-active { border-top-color: var(--primary); background: #fffdfd; }
@@ -48,29 +60,33 @@
         .btn-post { background: var(--secondary); color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
         .btn-cancel { background: #666; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 14px; display: none; }
 
-        /* Layout Grid */
+        .bulk-toggle-container { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 14px; font-weight: bold; color: var(--secondary); }
+        .bulk-toggle-container input { width: auto; margin: 0; }
+
+        /* Dashboard Grid */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
         @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        /* Search & Filter Bar */
         .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
         .filter-bar input { margin: 0; padding: 8px 12px; }
 
-        /* Inventory & Orders Containers */
         .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
         .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
         /* Inventory Items */
         .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; transition: 0.3s; }
         .low-stock { border-left: 5px solid var(--danger); background: #fff5f5; }
+        .out-of-stock { opacity: 0.7; filter: grayscale(1); }
         .inv-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
         .inv-info { flex-grow: 1; }
         .inv-info b { font-size: 14px; display: block; }
         .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; font-weight: bold; border-color: var(--secondary); }
+        .margin-badge { color: var(--success); font-weight: bold; font-size: 11px; margin-left: 5px; }
 
         /* Orders */
-        .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .delivered { opacity: 0.6; border-left-color: #888; background: #f9f9f9; }
+        .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
+        .delivered { opacity: 0.7; border-left-color: #888; background: #f9f9f9; border-left-style: dashed; }
+        .badge-bulk { background: #6f42c1; color: white; font-size: 10px; padding: 3px 8px; border-radius: 5px; position: absolute; top: 10px; right: 10px; font-weight: bold; }
         .mark-btn { background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 10px; }
         
         .action-btns { display: flex; gap: 10px; }
@@ -79,16 +95,18 @@
 
         .row-flex { display: flex; gap: 10px; }
         .badge-low { background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+        .badge-sold { background: #333; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
     </style>
 </head>
 <body>
 
+    <div id="order-toast"><i class="fas fa-bell"></i> 🔔 New Order Received!</div>
+
     <div id="login-screen">
         <div class="login-card">
             <div class="logo">ShopEasy Admin</div>
-            <p style="font-size: 14px; color: #666; margin-bottom: 20px;">Please enter your password to continue</p>
             <input type="password" id="admin-pass" placeholder="Password">
-            <button class="btn-post" onclick="checkLogin()">Login to Dashboard</button>
+            <button class="btn-post" onclick="checkLogin()">Login</button>
             <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px; display:none;">Incorrect Password!</p>
         </div>
     </div>
@@ -104,8 +122,13 @@
                 <div class="stat-card prof-bg">
                     <p style="margin:0; font-size: 11px; opacity: 0.9;">EST. PROFIT</p>
                     <h1 id="totalProfit">MK 0</h1>
-                    <small style="font-size: 9px;">(Revenue - Cost Prices)</small>
                 </div>
+                <div class="stat-card best-bg">
+                    <p style="margin:0; font-size: 11px; opacity: 0.9;">TOP SELLER</p>
+                    <h1 id="topProduct" style="font-size: 16px; margin-top: 8px;">None</h1>
+                </div>
+                <button class="restock-alert" id="restockBtn" onclick="filterOutStock()"><i class="fas fa-exclamation-triangle"></i> <span id="outCount">0</span> Out of Stock</button>
+                <button class="btn-summary" onclick="showDailySummary()"><i class="fas fa-calendar-day"></i> Today</button>
                 <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
         </header>
@@ -115,49 +138,57 @@
                 <div class="card" id="formCard">
                     <h2 id="formTitle">🚀 Post New Product</h2>
                     <input type="text" id="name" placeholder="Product Name">
-                    
+                    <div class="bulk-toggle-container">
+                        <input type="checkbox" id="bulkToggle" onchange="toggleBulkPrice()"> 
+                        <label for="bulkToggle">Apply Bulk Price to Sale Price?</label>
+                    </div>
                     <div class="row-flex">
                         <input type="number" id="price" placeholder="Sale Price (MK)">
-                        <input type="number" id="costPrice" placeholder="Cost Price (MK) - For Profit">
+                        <input type="number" id="costPrice" placeholder="Cost Price (MK)">
                     </div>
-                    
                     <div class="row-flex">
                         <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
                         <input type="number" id="stock" placeholder="Stock Qty">
                     </div>
-                    
                     <select id="cat">
                         <option value="Electronics">Electronics</option>
                         <option value="Fashion">Fashion</option>
                         <option value="Home">Home</option>
                         <option value="Beauty">Beauty</option>
                     </select>
-
-                    <input type="text" id="img" placeholder="Image Link (https://...)">
-                    <textarea id="desc" placeholder="Product Details..."></textarea>
+                    <input type="text" id="img" placeholder="Image Link">
+                    <textarea id="desc" placeholder="Details..."></textarea>
                     <button class="btn-post" id="submitBtn" onclick="upload()">Publish Product</button>
                     <button class="btn-cancel" id="cancelBtn" onclick="resetForm()">Cancel Editing</button>
                 </div>
 
                 <h3 class="section-title">
-                    <span><i class="fas fa-shopping-bag"></i> Customer Orders</span>
-                    <button class="btn-export" onclick="exportOrders()"><i class="fas fa-file-export"></i> Export Sales</button>
+                    <span><i class="fas fa-shopping-bag"></i> Orders</span>
+                    <button class="btn-export" onclick="exportOrders()"><i class="fas fa-file-export"></i> Export</button>
                 </h3>
                 <div class="filter-bar">
-                    <input type="text" id="orderSearch" placeholder="Search by name..." oninput="renderOrders()">
-                    <select id="orderFilter" onchange="renderOrders()" style="width: 150px; margin:0;">
-                        <option value="all">All Orders</option>
-                        <option value="pending">Pending</option>
-                        <option value="delivered">Delivered</option>
+                    <input type="text" id="orderSearch" placeholder="Search customer..." oninput="renderOrders()">
+                    <select id="orderFilter" onchange="renderOrders()">
+                        <option value="pending">Active Only</option>
+                        <option value="delivered">Archive</option>
+                        <option value="bulk">Bulk Orders Only</option>
+                        <option value="all">View All</option>
                     </select>
                 </div>
                 <div class="scroll-section" id="orders"></div>
             </div>
 
             <div>
-                <h3 class="section-title"><span><i class="fas fa-boxes"></i> Inventory & Stock</span></h3>
+                <h3 class="section-title"><span><i class="fas fa-boxes"></i> Inventory</span></h3>
                 <div class="filter-bar">
                     <input type="text" id="invSearch" placeholder="Search products..." oninput="renderInventory()">
+                    <select id="invCatFilter" onchange="renderInventory()">
+                        <option value="all">All Categories</option>
+                        <option value="Electronics">Electronics</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Home">Home</option>
+                        <option value="Beauty">Beauty</option>
+                    </select>
                 </div>
                 <div class="scroll-section" id="inv"></div>
             </div>
@@ -182,6 +213,7 @@
         let editId = null;
         let productsDataCache = {};
         let ordersDataCache = [];
+        let initialLoad = true;
 
         window.checkLogin = () => {
             const pass = document.getElementById('admin-pass').value;
@@ -189,22 +221,20 @@
                 sessionStorage.setItem("auth", "ok");
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
+            } else { document.getElementById('login-error').style.display = 'block'; }
         }
 
-        window.logout = () => {
-            if(confirm("Are you sure you want to logout?")) {
-                sessionStorage.removeItem("auth");
-                window.location.reload();
-            }
-        }
-
+        window.logout = () => { if(confirm("Logout?")) { sessionStorage.removeItem("auth"); window.location.reload(); } }
         if(sessionStorage.getItem("auth") === "ok"){
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-dashboard').style.display = 'block';
         }
+
+        window.toggleBulkPrice = () => {
+            const isChecked = document.getElementById('bulkToggle').checked;
+            const bPrice = document.getElementById('bulkPrice').value;
+            if(isChecked && bPrice) { document.getElementById('price').value = bPrice; }
+        };
 
         window.upload = async () => {
             const name = document.getElementById('name').value;
@@ -216,179 +246,179 @@
             const category = document.getElementById('cat').value;
             const desc = document.getElementById('desc').value;
 
-            if(!name || !price || !stock || !image) return alert("Fill all main fields!");
-            
-            try {
-                const data = {
-                    name, 
-                    price: Number(price), 
-                    costPrice: Number(costPrice) || 0,
-                    bulkPrice: Number(bPrice) || Number(price),
-                    stock: Number(stock), 
-                    image, 
-                    category,
-                    description: desc || "No details provided."
-                };
-
-                if (editId) {
-                    await updateDoc(doc(db, "products", editId), data);
-                    alert("Product Updated!");
-                } else {
-                    data.timestamp = Date.now();
-                    await addDoc(collection(db, "products"), data);
-                    alert("Product is Live!");
-                }
-                resetForm();
-            } catch (e) { alert(e.message); }
+            if(!name || !price || !stock || !image) return alert("Fill required fields!");
+            const data = { name, price: Number(price), costPrice: Number(costPrice) || 0, bulkPrice: Number(bPrice) || Number(price), stock: Number(stock), image, category, description: desc || "No details." };
+            if (editId) { await updateDoc(doc(db, "products", editId), data); } 
+            else { data.timestamp = Date.now(); await addDoc(collection(db, "products"), data); }
+            resetForm();
         };
 
         window.startEdit = (id) => {
-            const p = productsDataCache[id];
-            editId = id;
-            document.getElementById('name').value = p.name;
-            document.getElementById('price').value = p.price;
-            document.getElementById('costPrice').value = p.costPrice || 0;
+            const p = productsDataCache[id]; editId = id;
+            document.getElementById('name').value = p.name; document.getElementById('price').value = p.price;
+            document.getElementById('costPrice').value = p.costPrice || 0; 
             document.getElementById('bulkPrice').value = p.bulkPrice || p.price;
             document.getElementById('stock').value = p.stock;
-            document.getElementById('img').value = p.image;
-            document.getElementById('cat').value = p.category;
-            document.getElementById('desc').value = p.description;
-
-            document.getElementById('formTitle').innerText = "✏️ Edit: " + p.name;
-            document.getElementById('submitBtn').innerText = "Update Product";
-            document.getElementById('formCard').classList.add('edit-mode-active');
-            document.getElementById('cancelBtn').style.display = "block";
+            document.getElementById('img').value = p.image; document.getElementById('cat').value = p.category;
+            document.getElementById('desc').value = p.description; document.getElementById('formTitle').innerText = "✏️ Edit: " + p.name;
+            document.getElementById('formCard').classList.add('edit-mode-active'); document.getElementById('cancelBtn').style.display = "block";
+            document.getElementById('bulkToggle').checked = false;
             window.scrollTo(0,0);
         };
 
         window.resetForm = () => {
-            editId = null;
-            document.querySelectorAll('#formCard input, #formCard textarea').forEach(i => i.value = "");
+            editId = null; document.querySelectorAll('#formCard input, #formCard textarea').forEach(i => i.value = "");
             document.getElementById('formTitle').innerText = "🚀 Post New Product";
-            document.getElementById('submitBtn').innerText = "Publish Product";
-            document.getElementById('formCard').classList.remove('edit-mode-active');
-            document.getElementById('cancelBtn').style.display = "none";
+            document.getElementById('formCard').classList.remove('edit-mode-active'); document.getElementById('cancelBtn').style.display = "none";
+            document.getElementById('bulkToggle').checked = false;
         };
 
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
-            productsDataCache = {};
-            snap.forEach(d => {
-                productsDataCache[d.id] = { ...d.data(), id: d.id };
+            productsDataCache = {}; 
+            let outCount = 0;
+            snap.forEach(d => { 
+                const data = d.data();
+                productsDataCache[d.id] = { ...data, id: d.id }; 
+                if(data.stock <= 0) outCount++;
             });
-            renderInventory();
-            calculateProfit();
+            const restockBtn = document.getElementById('restockBtn');
+            if(outCount > 0) {
+                restockBtn.style.display = 'flex';
+                document.getElementById('outCount').innerText = outCount;
+            } else { restockBtn.style.display = 'none'; }
+            renderInventory(); calculateStats();
         });
 
         window.renderInventory = () => {
             const cont = document.getElementById('inv');
             const search = document.getElementById('invSearch').value.toLowerCase();
+            const catFilter = document.getElementById('invCatFilter').value;
             cont.innerHTML = "";
-            
-            Object.values(productsDataCache).filter(p => 
-                p.name.toLowerCase().includes(search)
-            ).forEach(p => {
-                const isLow = p.stock <= 3;
+            Object.values(productsDataCache).filter(p => {
+                const matchSearch = p.name.toLowerCase().includes(search);
+                const matchCat = catFilter === 'all' || p.category === catFilter;
+                return matchSearch && matchCat;
+            }).forEach(p => {
+                const isLow = p.stock <= 3 && p.stock > 0; const isOut = p.stock <= 0;
+                const margin = p.price > 0 ? Math.round(((p.price - (p.costPrice || 0)) / p.price) * 100) : 0;
+                
                 cont.innerHTML += `
-                <div class="inv-item ${isLow ? 'low-stock' : ''}">
+                <div class="inv-item ${isOut ? 'out-of-stock' : (isLow ? 'low-stock' : '')}">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div class="inv-info">
-                        <b>${p.name} ${isLow ? '<span class="badge-low">LOW STOCK</span>' : ''}</b>
-                        <small>Sale: MK ${p.price.toLocaleString()} | Cost: MK ${p.costPrice ? p.costPrice.toLocaleString() : '0'}</small>
-                    </div>
+                    <div class="inv-info"><b>${p.name} ${isOut ? '<span class="badge-sold">SOLD OUT</span>' : (isLow ? '<span class="badge-low">LOW</span>' : '')}</b>
+                    <small>MK ${p.price.toLocaleString()} | Cost: ${p.costPrice} <span class="margin-badge">(${margin}% margin)</span></small></div>
                     <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">
-                    <div class="action-btns">
-                        <button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="btn-del" onclick="del('${p.id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>`;
+                    <div class="action-btns"><button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button>
+                    <button class="btn-del" onclick="del('${p.id}')"><i class="fas fa-trash"></i></button></div></div>`;
             });
         };
 
-        window.updateStock = async (id, val) => {
-            await updateDoc(doc(db, "products", id), { stock: Number(val) });
+        window.filterOutStock = () => {
+            document.getElementById('invSearch').value = "";
+            document.getElementById('invCatFilter').value = "all";
+            const cont = document.getElementById('inv');
+            cont.innerHTML = "";
+            Object.values(productsDataCache).filter(p => p.stock <= 0).forEach(p => {
+                cont.innerHTML += `
+                <div class="inv-item out-of-stock">
+                    <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
+                    <div class="inv-info"><b>${p.name} <span class="badge-sold">SOLD OUT</span></b>
+                    <small>MK ${p.price.toLocaleString()}</small></div>
+                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">
+                    <div class="action-btns"><button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button></div></div>`;
+            });
         };
 
-        window.del = async (id) => { 
-            if(confirm("Remove this product?")) await deleteDoc(doc(db, "products", id));
-        };
+        window.updateStock = async (id, val) => { await updateDoc(doc(db, "products", id), { stock: Number(val) }); };
+        window.del = async (id) => { if(confirm("Remove?")) await deleteDoc(doc(db, "products", id)); };
 
         onSnapshot(query(collection(db, "orders"), orderBy("timestamp", "desc")), snap => {
+            if (!initialLoad && snap.docs.length > ordersDataCache.length) { showNotification(); }
             ordersDataCache = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-            renderOrders();
-            calculateProfit();
+            renderOrders(); calculateStats(); initialLoad = false;
         });
 
+        function showNotification() {
+            const toast = document.getElementById('order-toast'); toast.style.display = 'block';
+            const context = new AudioContext(); const osc = context.createOscillator();
+            osc.connect(context.destination); osc.start(); osc.stop(context.currentTime + 0.1);
+            setTimeout(() => { toast.style.display = 'none'; }, 5000);
+        }
+
         window.renderOrders = () => {
-            const cont = document.getElementById('orders');
-            const search = document.getElementById('orderSearch').value.toLowerCase();
-            const filter = document.getElementById('orderFilter').value;
+            const cont = document.getElementById('orders'); const search = document.getElementById('orderSearch').value.toLowerCase();
+            const filter = document.getElementById('orderFilter').value; cont.innerHTML = "";
             
-            cont.innerHTML = "";
             ordersDataCache.filter(o => {
                 const matchSearch = o.customerName.toLowerCase().includes(search);
-                const matchFilter = filter === 'all' || (filter === 'pending' && o.status !== 'delivered') || (filter === 'delivered' && o.status === 'delivered');
+                let isBulkOrder = false;
+                o.items.forEach(item => {
+                    const pInfo = Object.values(productsDataCache).find(p => p.name === item.name);
+                    if(pInfo && item.price === pInfo.bulkPrice) isBulkOrder = true;
+                });
+                let matchFilter = filter === 'all' || (filter === 'pending' && o.status !== 'delivered') || (filter === 'delivered' && o.status === 'delivered') || (filter === 'bulk' && isBulkOrder);
                 return matchSearch && matchFilter;
             }).forEach(o => {
+                const isDelivered = o.status === 'delivered';
+                let isBulkOrder = false;
+                o.items.forEach(item => {
+                    const pInfo = Object.values(productsDataCache).find(p => p.name === item.name);
+                    if(pInfo && item.price === pInfo.bulkPrice) isBulkOrder = true;
+                });
                 cont.innerHTML += `
-                <div class="order ${o.status === 'delivered' ? 'delivered' : ''}">
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>${o.customerName}</b>
-                        <small>${new Date(o.timestamp).toLocaleDateString()}</small>
-                    </div>
-                    <div style="font-size:13px; color:var(--primary); font-weight:bold; margin:5px 0;">MK ${Number(o.total).toLocaleString()}</div>
-                    <div style="font-size:12px; color:#666;">${o.items.map(i => i.name + ' (x'+(i.qty||1)+')').join(", ")}</div>
-                    ${o.status !== 'delivered' ? `<button class="mark-btn" onclick="mark('${o.id}')">Mark Delivered</button>` : '<div style="margin-top:10px; font-size:12px; color:green;">✅ Completed</div>'}
-                </div>`;
+                <div class="order ${isDelivered ? 'delivered' : ''}">
+                    ${isBulkOrder ? '<span class="badge-bulk">BULK ORDER</span>' : ''}
+                    <b>${o.customerName}</b> <small>${new Date(o.timestamp).toLocaleDateString()}</small>
+                    <div style="color:var(--primary); font-weight:bold;">MK ${Number(o.total).toLocaleString()}</div>
+                    <div style="font-size:12px;">${o.items.map(i => i.name + ' (x'+(i.qty||1)+')').join(", ")}</div>
+                    ${!isDelivered ? `<button class="mark-btn" onclick="mark('${o.id}')">Mark Delivered</button>` : '✅ Archived'}</div>`;
             });
         };
 
-        window.calculateProfit = () => {
-            let totalRev = 0;
-            let totalProfit = 0;
-
+        window.calculateStats = () => {
+            let totalRev = 0; let totalProfit = 0; let counter = {};
             ordersDataCache.forEach(order => {
                 totalRev += Number(order.total);
                 order.items.forEach(item => {
-                    const productInfo = Object.values(productsDataCache).find(p => p.name === item.name);
-                    const cost = productInfo ? (productInfo.costPrice || 0) : 0;
-                    const pricePaid = item.price || (productInfo ? productInfo.price : 0);
-                    totalProfit += (pricePaid - cost) * (item.qty || 1);
+                    counter[item.name] = (counter[item.name] || 0) + (item.qty || 1);
+                    const pInfo = Object.values(productsDataCache).find(p => p.name === item.name);
+                    const cost = pInfo ? (pInfo.costPrice || 0) : 0;
+                    totalProfit += ((item.price || (pInfo?pInfo.price:0)) - cost) * (item.qty || 1);
                 });
             });
-
+            let topName = "None"; let max = 0;
+            for (let n in counter) { if (counter[n] > max) { max = counter[n]; topName = n; } }
             document.getElementById('totalRevenue').innerText = "MK " + totalRev.toLocaleString();
             document.getElementById('totalProfit').innerText = "MK " + totalProfit.toLocaleString();
+            document.getElementById('topProduct').innerText = topName;
         };
 
-        window.mark = async (id) => {
-            await updateDoc(doc(db, "orders", id), { status: "delivered" });
-        };
-
-        window.exportOrders = () => {
-            if(ordersDataCache.length === 0) return alert("No orders to export.");
-            let csvContent = "data:text/csv;charset=utf-8,Date,Customer,Items,Total(MK),Status\n";
-            ordersDataCache.forEach(o => {
-                const date = new Date(o.timestamp).toLocaleDateString().replace(/,/g, "");
-                const items = o.items.map(i => `${i.name}(x${i.qty||1})`).join(" | ");
-                csvContent += `${date},${o.customerName},${items},${o.total},${o.status || 'pending'}\n`;
+        window.showDailySummary = () => {
+            const todayStr = new Date().toLocaleDateString();
+            let dayRev = 0; let dayProf = 0;
+            ordersDataCache.filter(o => new Date(o.timestamp).toLocaleDateString() === todayStr).forEach(order => {
+                dayRev += Number(order.total);
+                order.items.forEach(item => {
+                    const pInfo = Object.values(productsDataCache).find(p => p.name === item.name);
+                    const cost = pInfo ? (pInfo.costPrice || 0) : 0;
+                    dayProf += ((item.price || (pInfo?pInfo.price:0)) - cost) * (item.qty || 1);
+                });
             });
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `ShopEasy_Sales_${new Date().toLocaleDateString()}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            alert(`--- TODAY'S SUMMARY (${todayStr}) ---\nRevenue: MK ${dayRev.toLocaleString()}\nProfit: MK ${dayProf.toLocaleString()}`);
         };
 
+        window.mark = async (id) => { await updateDoc(doc(db, "orders", id), { status: "delivered" }); };
+        window.exportOrders = () => {
+            let csv = "Date,Customer,Items,Total\n";
+            ordersDataCache.forEach(o => csv += `${new Date(o.timestamp).toLocaleDateString()},${o.customerName},${o.items.map(i=>i.name).join("|")},${o.total}\n`);
+            const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = "Sales_Report.csv"; link.click();
+        };
         window.clearOrders = async () => {
-            if(confirm("Permanently delete ALL order history?")) {
-                const q = query(collection(db, "orders"));
-                const snap = await getDocs(q);
-                const batch = writeBatch(db);
-                snap.forEach(d => batch.delete(d.ref));
+            if(confirm("Clear ALL?")) {
+                const snap = await getDocs(query(collection(db, "orders")));
+                const batch = writeBatch(db); snap.forEach(d => batch.delete(d.ref));
                 await batch.commit();
-                alert("History Cleared.");
             }
         };
     </script>
