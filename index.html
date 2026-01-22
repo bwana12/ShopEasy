@@ -262,7 +262,7 @@
 
             <div id="final-fields" style="display:none;">
                 <select id="deliv-zone" onchange="updateCartUI()" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
-                    <option value="0">Select Delivery Zone</option>
+                    <option value="0">Select Delivery Zone (Optional)</option>
                     <option value="2000">Blantyre City (MK 2,000)</option>
                     <option value="3500">Lilongwe City (MK 3,500)</option>
                     <option value="3500">Zomba City (MK 3,500)</option>
@@ -270,6 +270,10 @@
                     <option value="5000">Other Districts (MK 5,000)</option>
                 </select>
                 <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="remember-me" style="cursor:pointer;">
+                    <label for="remember-me" style="font-size:12px; cursor:pointer;">Remember my name</label>
+                </div>
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
             
@@ -316,6 +320,13 @@
         };
 
         if (localStorage.getItem('theme') === 'dark') toggleTheme();
+
+        // Load saved name if exists
+        const savedName = localStorage.getItem('customerName');
+        if (savedName) {
+            document.getElementById('cust-name').value = savedName;
+            document.getElementById('remember-me').checked = true;
+        }
 
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
             allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -510,10 +521,19 @@
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.trim();
             const deliveryFee = Number(document.getElementById('deliv-zone').value);
-            const zoneText = document.getElementById('deliv-zone').options[document.getElementById('deliv-zone').selectedIndex].text;
+            const zoneSelect = document.getElementById('deliv-zone');
+            const zoneText = zoneSelect.options[zoneSelect.selectedIndex].text;
+            const rememberMe = document.getElementById('remember-me').checked;
             
-            if(!name || !cart.length || deliveryFee === 0) return alert("Please fill name and select delivery zone!");
+            if(!name || !cart.length) return alert("Please enter your name to proceed!");
             
+            // Handle Remember Me logic
+            if (rememberMe) {
+                localStorage.setItem('customerName', name);
+            } else {
+                localStorage.removeItem('customerName');
+            }
+
             let subtotal = 0;
             let itemsText = cart.map(i => {
                 const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
@@ -522,13 +542,29 @@
             }).join("%0A");
 
             const finalTotal = subtotal * (1 - discountPercent/100) + deliveryFee;
+            
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
             localStorage.setItem('orderHistory', JSON.stringify(history));
 
+            let waMsg = `*Order from ${name}*%0A${itemsText}%0A%0A`;
+            if(deliveryFee > 0) {
+                waMsg += `*Zone:* ${zoneText}%0A`;
+                waMsg += `*Total (inc. delivery):* MK ${finalTotal.toLocaleString()}`;
+            } else {
+                waMsg += `*Total:* MK ${finalTotal.toLocaleString()}%0A_(Delivery details TBD)_`;
+            }
+
             try {
-                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, status: "pending", timestamp: Date.now() });
-                window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A%0A*Zone:* ${zoneText}%0A*Total (inc. delivery):* MK ${finalTotal.toLocaleString()}`, '_blank');
+                await addDoc(collection(db, "orders"), { 
+                    customerName: name, 
+                    items: cart, 
+                    total: finalTotal, 
+                    deliveryZone: deliveryFee > 0 ? zoneText : "Not Selected",
+                    status: "pending", 
+                    timestamp: Date.now() 
+                });
+                window.open(`https://wa.me/${MY_PHONE}?text=${waMsg}`, '_blank');
                 cart = []; discountPercent = 0; updateCartUI(); updateHistoryUI();
             } catch (e) { alert(e.message); }
         };
@@ -569,4 +605,3 @@
     </script>
 </body>
 </html>
-
