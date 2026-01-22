@@ -6,7 +6,7 @@
     <title>ShopEasy | Admin Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; --danger: #dc3545; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --bg: #f0f2f5; --success: #28a745; --danger: #dc3545; --warning: #fd7e14; }
         * { box-sizing: border-box; }
         body { background: var(--bg); font-family: 'Segoe UI', sans-serif; padding: 20px; color: #333; margin: 0; }
         
@@ -34,7 +34,6 @@
         /* Dashboard Header */
         header { max-width: 1200px; margin: 0 auto 20px; display: flex; justify-content: space-between; align-items: stretch; flex-wrap: wrap; gap: 15px; }
         
-        /* Revenue & Profit Cards */
         .stats-container { display: flex; gap: 15px; flex-grow: 1; flex-wrap: wrap; align-items: flex-start; }
         .stat-card { color: white; padding: 15px 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center; position: relative; }
         .rev-bg { background: var(--success); }
@@ -45,14 +44,12 @@
         
         .btn-summary { background: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
         
-        /* Restock Alert Style */
         .restock-alert { background: var(--danger); color: white; border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; display: none; align-items: center; gap: 8px; height: fit-content; align-self: center; animation: pulse 2s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
         .btn-logout { background: white; color: var(--danger); border: none; padding: 12px 20px; border-radius: 12px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 8px; height: fit-content; align-self: center; }
         .btn-export { background: #fff; border: 1px solid #ddd; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #444; }
         
-        /* Admin Form Card */
         .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); border-top: 5px solid var(--secondary); margin-bottom: 30px; transition: 0.3s; }
         .edit-mode-active { border-top-color: var(--primary); background: #fffdfd; }
         h2 { margin-bottom: 20px; font-size: 1.2rem; }
@@ -63,27 +60,28 @@
         .bulk-toggle-container { display: flex; align-items: center; gap: 10px; margin: 10px 0; font-size: 14px; font-weight: bold; color: var(--secondary); }
         .bulk-toggle-container input { width: auto; margin: 0; }
 
-        /* Dashboard Grid */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; max-width: 1200px; margin: 0 auto; }
         @media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } }
 
-        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; }
-        .filter-bar input { margin: 0; padding: 8px 12px; }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 15px; align-items: center; flex-wrap: wrap; }
+        .filter-bar input { margin: 0; padding: 8px 12px; flex: 1; }
 
         .scroll-section { max-height: 700px; overflow-y: auto; padding-right: 10px; }
         .section-title { margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 
-        /* Inventory Items */
         .inv-item { background: white; display: flex; align-items: center; padding: 10px; border-radius: 10px; margin-bottom: 10px; border: 1px solid #eee; gap: 15px; transition: 0.3s; }
         .low-stock { border-left: 5px solid var(--danger); background: #fff5f5; }
-        .out-of-stock { opacity: 0.7; filter: grayscale(1); }
+        .warning-stock { border-left: 5px solid var(--warning); background: #fff9f2; }
         .inv-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
         .inv-info { flex-grow: 1; }
         .inv-info b { font-size: 14px; display: block; }
         .stock-input { width: 70px !important; margin: 0 !important; padding: 5px !important; text-align: center; font-weight: bold; border-color: var(--secondary); }
-        .margin-badge { color: var(--success); font-weight: bold; font-size: 11px; margin-left: 5px; }
+        
+        /* Bulk Edit Enhancements */
+        .bulk-adjust-btn { background: #34495e; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .bulk-save-btn { background: var(--success); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; display: none; }
+        .bulk-input-field { width: 85px !important; margin: 0 !important; border-color: var(--secondary) !important; font-size: 12px !important; padding: 5px !important; }
 
-        /* Orders */
         .order { background: white; padding: 15px; margin-bottom: 12px; border-left: 5px solid var(--secondary); border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); position: relative; }
         .delivered { opacity: 0.7; border-left-color: #888; background: #f9f9f9; border-left-style: dashed; }
         .badge-bulk { background: #6f42c1; color: white; font-size: 10px; padding: 3px 8px; border-radius: 5px; position: absolute; top: 10px; right: 10px; font-weight: bold; }
@@ -95,6 +93,7 @@
 
         .row-flex { display: flex; gap: 10px; }
         .badge-low { background: var(--danger); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
+        .badge-warning { background: var(--warning); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-left: 5px; }
         .badge-sold { background: #333; color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; }
     </style>
 </head>
@@ -127,7 +126,7 @@
                     <p style="margin:0; font-size: 11px; opacity: 0.9;">TOP SELLER</p>
                     <h1 id="topProduct" style="font-size: 16px; margin-top: 8px;">None</h1>
                 </div>
-                <button class="restock-alert" id="restockBtn" onclick="filterOutStock()"><i class="fas fa-exclamation-triangle"></i> <span id="outCount">0</span> Out of Stock</button>
+                <button class="restock-alert" id="restockBtn" onclick="filterOutStock()"><i class="fas fa-exclamation-triangle"></i> <span id="outCount">0</span> Needs Restock</button>
                 <button class="btn-summary" onclick="showDailySummary()"><i class="fas fa-calendar-day"></i> Today</button>
                 <button class="btn-logout" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </div>
@@ -143,19 +142,23 @@
                         <label for="bulkToggle">Apply Bulk Price to Sale Price?</label>
                     </div>
                     <div class="row-flex">
-                        <input type="number" id="price" placeholder="Sale Price (MK)">
+                        <input type="number" id="price" placeholder="Sale Price (MK)" oninput="calcBulkFromPercent()">
                         <input type="number" id="costPrice" placeholder="Cost Price (MK)">
                     </div>
                     <div class="row-flex">
+                        <input type="number" id="bulkPercent" placeholder="Bulk Disc %" oninput="calcBulkFromPercent()">
                         <input type="number" id="bulkPrice" placeholder="Bulk Price (MK)">
                         <input type="number" id="stock" placeholder="Stock Qty">
                     </div>
-                    <select id="cat">
-                        <option value="Electronics">Electronics</option>
-                        <option value="Fashion">Fashion</option>
-                        <option value="Home">Home</option>
-                        <option value="Beauty">Beauty</option>
-                    </select>
+                    <div class="row-flex">
+                        <input type="number" id="alertLevel" placeholder="Alert Level (Default: 3)">
+                        <select id="cat">
+                            <option value="Electronics">Electronics</option>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Home">Home</option>
+                            <option value="Beauty">Beauty</option>
+                        </select>
+                    </div>
                     <input type="text" id="img" placeholder="Image Link">
                     <textarea id="desc" placeholder="Details..."></textarea>
                     <button class="btn-post" id="submitBtn" onclick="upload()">Publish Product</button>
@@ -179,7 +182,14 @@
             </div>
 
             <div>
-                <h3 class="section-title"><span><i class="fas fa-boxes"></i> Inventory</span></h3>
+                <h3 class="section-title">
+                    <span><i class="fas fa-boxes"></i> Inventory</span>
+                    <div style="display: flex; gap: 5px;">
+                        <button class="bulk-adjust-btn" id="bulkAdjBtn" onclick="toggleBulkAdjust()"><i class="fas fa-edit"></i> Bulk Adjust</button>
+                        <button class="bulk-save-btn" id="bulkSaveBtn" onclick="saveBulkChanges()"><i class="fas fa-check"></i> Save All</button>
+                        <button class="btn-export" onclick="printRestockList()"><i class="fas fa-print"></i> Restock List</button>
+                    </div>
+                </h3>
                 <div class="filter-bar">
                     <input type="text" id="invSearch" placeholder="Search products..." oninput="renderInventory()">
                     <select id="invCatFilter" onchange="renderInventory()">
@@ -214,6 +224,7 @@
         let productsDataCache = {};
         let ordersDataCache = [];
         let initialLoad = true;
+        let bulkMode = "none"; // none, adjust
 
         window.checkLogin = () => {
             const pass = document.getElementById('admin-pass').value;
@@ -230,6 +241,15 @@
             document.getElementById('admin-dashboard').style.display = 'block';
         }
 
+        window.calcBulkFromPercent = () => {
+            const price = Number(document.getElementById('price').value);
+            const percent = Number(document.getElementById('bulkPercent').value);
+            if(price && percent) {
+                const bulkPrice = Math.round(price - (price * (percent / 100)));
+                document.getElementById('bulkPrice').value = bulkPrice;
+            }
+        };
+
         window.toggleBulkPrice = () => {
             const isChecked = document.getElementById('bulkToggle').checked;
             const bPrice = document.getElementById('bulkPrice').value;
@@ -245,9 +265,17 @@
             const image = document.getElementById('img').value;
             const category = document.getElementById('cat').value;
             const desc = document.getElementById('desc').value;
+            const aLevel = document.getElementById('alertLevel').value;
 
             if(!name || !price || !stock || !image) return alert("Fill required fields!");
-            const data = { name, price: Number(price), costPrice: Number(costPrice) || 0, bulkPrice: Number(bPrice) || Number(price), stock: Number(stock), image, category, description: desc || "No details." };
+            const data = { 
+                name, price: Number(price), 
+                costPrice: Number(costPrice) || 0, 
+                bulkPrice: Number(bPrice) || Number(price), 
+                stock: Number(stock), 
+                alertLevel: Number(aLevel) || 3,
+                image, category, description: desc || "No details." 
+            };
             if (editId) { await updateDoc(doc(db, "products", editId), data); } 
             else { data.timestamp = Date.now(); await addDoc(collection(db, "products"), data); }
             resetForm();
@@ -255,36 +283,41 @@
 
         window.startEdit = (id) => {
             const p = productsDataCache[id]; editId = id;
-            document.getElementById('name').value = p.name; document.getElementById('price').value = p.price;
+            document.getElementById('name').value = p.name; 
+            document.getElementById('price').value = p.price;
             document.getElementById('costPrice').value = p.costPrice || 0; 
             document.getElementById('bulkPrice').value = p.bulkPrice || p.price;
             document.getElementById('stock').value = p.stock;
-            document.getElementById('img').value = p.image; document.getElementById('cat').value = p.category;
-            document.getElementById('desc').value = p.description; document.getElementById('formTitle').innerText = "✏️ Edit: " + p.name;
-            document.getElementById('formCard').classList.add('edit-mode-active'); document.getElementById('cancelBtn').style.display = "block";
-            document.getElementById('bulkToggle').checked = false;
+            document.getElementById('alertLevel').value = p.alertLevel || 3;
+            document.getElementById('img').value = p.image; 
+            document.getElementById('cat').value = p.category;
+            document.getElementById('desc').value = p.description; 
+            document.getElementById('formTitle').innerText = "✏️ Edit: " + p.name;
+            document.getElementById('formCard').classList.add('edit-mode-active'); 
+            document.getElementById('cancelBtn').style.display = "block";
             window.scrollTo(0,0);
         };
 
         window.resetForm = () => {
             editId = null; document.querySelectorAll('#formCard input, #formCard textarea').forEach(i => i.value = "");
             document.getElementById('formTitle').innerText = "🚀 Post New Product";
-            document.getElementById('formCard').classList.remove('edit-mode-active'); document.getElementById('cancelBtn').style.display = "none";
-            document.getElementById('bulkToggle').checked = false;
+            document.getElementById('formCard').classList.remove('edit-mode-active'); 
+            document.getElementById('cancelBtn').style.display = "none";
         };
 
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), snap => {
             productsDataCache = {}; 
-            let outCount = 0;
+            let alertCount = 0;
             snap.forEach(d => { 
                 const data = d.data();
                 productsDataCache[d.id] = { ...data, id: d.id }; 
-                if(data.stock <= 0) outCount++;
+                const threshold = data.alertLevel || 3;
+                if(data.stock <= threshold) alertCount++;
             });
             const restockBtn = document.getElementById('restockBtn');
-            if(outCount > 0) {
+            if(alertCount > 0) {
                 restockBtn.style.display = 'flex';
-                document.getElementById('outCount').innerText = outCount;
+                document.getElementById('outCount').innerText = alertCount;
             } else { restockBtn.style.display = 'none'; }
             renderInventory(); calculateStats();
         });
@@ -299,18 +332,70 @@
                 const matchCat = catFilter === 'all' || p.category === catFilter;
                 return matchSearch && matchCat;
             }).forEach(p => {
-                const isLow = p.stock <= 3 && p.stock > 0; const isOut = p.stock <= 0;
-                const margin = p.price > 0 ? Math.round(((p.price - (p.costPrice || 0)) / p.price) * 100) : 0;
+                const threshold = p.alertLevel || 3;
+                const isLow = p.stock <= threshold && p.stock > 0; 
+                const isWarning = p.stock > threshold && p.stock <= (threshold + 7);
+                const isOut = p.stock <= 0;
                 
+                let controls = `<input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">`;
+                
+                if (bulkMode === "adjust") {
+                    controls = `
+                        <div style="display:flex; flex-direction:column; gap:2px;">
+                            <input type="number" class="bulk-input-field bulk-price" placeholder="Price" data-id="${p.id}" value="${p.price}">
+                            <input type="number" class="bulk-input-field bulk-bulk" placeholder="Bulk" data-id="${p.id}" value="${p.bulkPrice || p.price}">
+                            <input type="number" class="bulk-input-field bulk-stock" placeholder="+Stock" data-id="${p.id}">
+                        </div>`;
+                }
+
                 cont.innerHTML += `
-                <div class="inv-item ${isOut ? 'out-of-stock' : (isLow ? 'low-stock' : '')}">
+                <div class="inv-item ${isOut || isLow ? 'low-stock' : (isWarning ? 'warning-stock' : '')}">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div class="inv-info"><b>${p.name} ${isOut ? '<span class="badge-sold">SOLD OUT</span>' : (isLow ? '<span class="badge-low">LOW</span>' : '')}</b>
-                    <small>MK ${p.price.toLocaleString()} | Cost: ${p.costPrice} <span class="margin-badge">(${margin}% margin)</span></small></div>
-                    <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">
+                    <div class="inv-info">
+                        <b>${p.name} 
+                           ${isOut ? '<span class="badge-sold">SOLD OUT</span>' : ''}
+                           ${isLow && !isOut ? '<span class="badge-low">LOW</span>' : ''}
+                        </b>
+                        <small>P: MK ${p.price.toLocaleString()} | B: MK ${(p.bulkPrice || p.price).toLocaleString()} | S: ${p.stock}</small>
+                    </div>
+                    ${controls}
                     <div class="action-btns"><button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button>
                     <button class="btn-del" onclick="del('${p.id}')"><i class="fas fa-trash"></i></button></div></div>`;
             });
+        };
+
+        window.toggleBulkAdjust = () => {
+            bulkMode = (bulkMode === "none") ? "adjust" : "none";
+            document.getElementById('bulkAdjBtn').innerText = (bulkMode === "none") ? "Bulk Adjust" : "Cancel Edit";
+            document.getElementById('bulkSaveBtn').style.display = (bulkMode === "none") ? "none" : "block";
+            renderInventory();
+        };
+
+        window.saveBulkChanges = async () => {
+            const batch = writeBatch(db);
+            let changesFound = false;
+
+            document.querySelectorAll('.bulk-price').forEach(el => {
+                const pId = el.dataset.id;
+                const newPrice = Number(el.value);
+                const newBulk = Number(document.querySelector(`.bulk-bulk[data-id="${pId}"]`).value);
+                const addStock = Number(document.querySelector(`.bulk-stock[data-id="${pId}"]`).value) || 0;
+
+                if (newPrice !== productsDataCache[pId].price || newBulk !== (productsDataCache[pId].bulkPrice || productsDataCache[pId].price) || addStock !== 0) {
+                    batch.update(doc(db, "products", pId), {
+                        price: newPrice,
+                        bulkPrice: newBulk,
+                        stock: productsDataCache[pId].stock + addStock
+                    });
+                    changesFound = true;
+                }
+            });
+
+            if (changesFound) {
+                await batch.commit();
+                alert("Batch update successful!");
+            }
+            toggleBulkAdjust();
         };
 
         window.filterOutStock = () => {
@@ -318,11 +403,11 @@
             document.getElementById('invCatFilter').value = "all";
             const cont = document.getElementById('inv');
             cont.innerHTML = "";
-            Object.values(productsDataCache).filter(p => p.stock <= 0).forEach(p => {
+            Object.values(productsDataCache).filter(p => p.stock <= (p.alertLevel || 3)).forEach(p => {
                 cont.innerHTML += `
-                <div class="inv-item out-of-stock">
+                <div class="inv-item low-stock">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/50'">
-                    <div class="inv-info"><b>${p.name} <span class="badge-sold">SOLD OUT</span></b>
+                    <div class="inv-info"><b>${p.name} ${p.stock <= 0 ? '<span class="badge-sold">SOLD OUT</span>' : '<span class="badge-low">LOW</span>'}</b>
                     <small>MK ${p.price.toLocaleString()}</small></div>
                     <input type="number" class="stock-input" value="${p.stock}" onchange="updateStock('${p.id}', this.value)">
                     <div class="action-btns"><button class="btn-edit" onclick="startEdit('${p.id}')"><i class="fas fa-edit"></i></button></div></div>`;
@@ -396,6 +481,8 @@
         window.showDailySummary = () => {
             const todayStr = new Date().toLocaleDateString();
             let dayRev = 0; let dayProf = 0;
+            let outOfStockList = [];
+            let lowStockList = [];
             ordersDataCache.filter(o => new Date(o.timestamp).toLocaleDateString() === todayStr).forEach(order => {
                 dayRev += Number(order.total);
                 order.items.forEach(item => {
@@ -404,15 +491,35 @@
                     dayProf += ((item.price || (pInfo?pInfo.price:0)) - cost) * (item.qty || 1);
                 });
             });
-            alert(`--- TODAY'S SUMMARY (${todayStr}) ---\nRevenue: MK ${dayRev.toLocaleString()}\nProfit: MK ${dayProf.toLocaleString()}`);
+            Object.values(productsDataCache).forEach(p => {
+                const threshold = p.alertLevel || 3;
+                if (p.stock <= 0) outOfStockList.push(p.name);
+                else if (p.stock <= threshold) lowStockList.push(`${p.name} (${p.stock} left)`);
+            });
+            const summaryText = `--- TODAY'S SUMMARY (${todayStr}) ---
+Revenue: MK ${dayRev.toLocaleString()}
+Profit: MK ${dayProf.toLocaleString()}
+
+--- REPLENISHMENT LIST ---
+OUT: ${outOfStockList.join(", ") || "None"}
+LOW: ${lowStockList.join(", ") || "None"}`;
+            alert(summaryText);
+        };
+
+        window.printRestockList = () => {
+            let list = Object.values(productsDataCache).filter(p => p.stock <= (p.alertLevel || 3));
+            if(list.length === 0) return alert("All stocked up!");
+            const printWin = window.open('', '_blank');
+            printWin.document.write(`<html><head><title>Restock</title><style>body{font-family:sans-serif;padding:20px;} table{width:100%;border-collapse:collapse;} th,td{border:1px solid #ddd;padding:12px;}</style></head><body onload="window.print()"><h2>Restock Checklist - ${new Date().toLocaleDateString()}</h2><table><tr><th>Item</th><th>Cat</th><th>Qty</th></tr>${list.map(p => `<tr><td>${p.name}</td><td>${p.category}</td><td>${p.stock}</td></tr>`).join('')}</table></body></html>`);
+            printWin.document.close();
         };
 
         window.mark = async (id) => { await updateDoc(doc(db, "orders", id), { status: "delivered" }); };
         window.exportOrders = () => {
-            let csv = "Date,Customer,Items,Total\n";
-            ordersDataCache.forEach(o => csv += `${new Date(o.timestamp).toLocaleDateString()},${o.customerName},${o.items.map(i=>i.name).join("|")},${o.total}\n`);
+            let csv = "Date,Customer,Total\n";
+            ordersDataCache.forEach(o => csv += `${new Date(o.timestamp).toLocaleDateString()},${o.customerName},${o.total}\n`);
             const link = document.createElement("a"); link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
-            link.download = "Sales_Report.csv"; link.click();
+            link.download = "Sales.csv"; link.click();
         };
         window.clearOrders = async () => {
             if(confirm("Clear ALL?")) {
@@ -424,3 +531,4 @@
     </script>
 </body>
 </html>
+
