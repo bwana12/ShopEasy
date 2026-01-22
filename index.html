@@ -117,6 +117,8 @@
         .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .qty-btn { background: var(--bg); color: var(--text); border: none; width: 24px; height: 24px; border-radius: 4px; }
+        
+        .tracker-section { margin: 20px 0; background: var(--bg); padding: 15px; border-radius: 10px; border: 1px solid var(--border); }
         .history-section { margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 20px; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-history-btn { font-size: 10px; color: var(--primary); cursor: pointer; font-weight: bold; border: none; background: none; }
@@ -138,6 +140,8 @@
 
         /* Back to Top */
         #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
+        
+        .share-wa-btn { background: #25D366; color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body id="top">
@@ -210,6 +214,7 @@
             <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
             <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:20px;"></p>
             <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">Add to Cart</button>
+            <button id="modal-share-wa" class="share-wa-btn"><i class="fab fa-whatsapp"></i> Share on Status</button>
         </div>
     </div>
 
@@ -227,6 +232,16 @@
             <h3 style="margin:0;">🛒 Your Order</h3>
         </div>
         <hr><br>
+        
+        <div class="tracker-section">
+            <h4 style="font-size:12px; margin-bottom:8px;">📦 Track Your Order</h4>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="track-name" placeholder="Your Name" style="flex:1; padding:8px; border-radius:5px; border:1px solid var(--border); font-size:12px;">
+                <button class="promo-btn" onclick="trackOrder()">Track</button>
+            </div>
+            <div id="track-result" style="margin-top:10px; font-size:12px; font-weight:bold;"></div>
+        </div>
+
         <div id="cart-items-list"></div>
         
         <div class="promo-box">
@@ -237,11 +252,20 @@
         <div style="margin-top: 20px;">
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
+            <p id="delivery-row" style="display:none; color:var(--secondary);">Delivery: +MK <span id="cart-delivery">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
 
             <div id="final-fields" style="display:none;">
+                <select id="deliv-zone" onchange="updateCartUI()" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                    <option value="0">Select Delivery Zone</option>
+                    <option value="2000">Blantyre City (MK 2,000)</option>
+                    <option value="3500">Lilongwe City (MK 3,500)</option>
+                    <option value="3500">Zomba City (MK 3,500)</option>
+                    <option value="4000">Mzuzu City (MK 4,000)</option>
+                    <option value="5000">Other Districts (MK 5,000)</option>
+                </select>
                 <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
@@ -262,7 +286,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -377,8 +401,27 @@
             document.getElementById('final-fields').style.display = 'block';
         };
 
+        window.trackOrder = async () => {
+            const name = document.getElementById('track-name').value.trim();
+            const resDiv = document.getElementById('track-result');
+            if(!name) return alert("Enter your name!");
+            
+            resDiv.innerHTML = "Searching...";
+            const q = query(collection(db, "orders"), where("customerName", "==", name), orderBy("timestamp", "desc"));
+            const snap = await getDocs(q);
+            
+            if(snap.empty) resDiv.innerHTML = "❌ No order found.";
+            else {
+                const order = snap.docs[0].data();
+                const status = order.status === 'delivered' ? '✅ Delivered' : '⏳ Pending Delivery';
+                resDiv.innerHTML = `Last Order Status: ${status}`;
+            }
+        };
+
         function updateCartUI() {
             let subtotal = 0;
+            const deliveryFee = Number(document.getElementById('deliv-zone')?.value || 0);
+            
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
             document.getElementById('cart-items-list').innerHTML = cart.map(i => {
                 const currentPrice = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
@@ -394,21 +437,29 @@
             }).join("");
 
             const discountVal = (subtotal * (discountPercent / 100));
-            const finalTotal = subtotal - discountVal;
+            const finalTotal = subtotal - discountVal + deliveryFee;
 
             document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString();
+            
             if (discountPercent > 0) {
                 document.getElementById('discount-row').style.display = 'block';
                 document.getElementById('cart-discount').innerText = discountVal.toLocaleString();
             } else {
                 document.getElementById('discount-row').style.display = 'none';
             }
+
+            if (deliveryFee > 0) {
+                document.getElementById('delivery-row').style.display = 'block';
+                document.getElementById('cart-delivery').innerText = deliveryFee.toLocaleString();
+            } else {
+                document.getElementById('delivery-row').style.display = 'none';
+            }
+
             document.getElementById('cart-total').innerText = finalTotal.toLocaleString();
 
-            // Handle Checkout Button Visibility
             const proceedBtn = document.getElementById('proceed-btn');
             if(cart.length > 0) {
-                proceedBtn.style.display = 'block';
+                proceedBtn.style.display = document.getElementById('final-fields').style.display === 'block' ? 'none' : 'block';
             } else {
                 proceedBtn.style.display = 'none';
                 document.getElementById('final-fields').style.display = 'none';
@@ -428,7 +479,11 @@
 
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.trim();
-            if(!name || !cart.length) return alert("Enter name and add items!");
+            const deliveryFee = Number(document.getElementById('deliv-zone').value);
+            const zoneText = document.getElementById('deliv-zone').options[document.getElementById('deliv-zone').selectedIndex].text;
+            
+            if(!name || !cart.length || deliveryFee === 0) return alert("Please fill name and select delivery zone!");
+            
             let subtotal = 0;
             let itemsText = cart.map(i => {
                 const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
@@ -436,14 +491,14 @@
                 return `- ${i.name} (x${i.qty})`;
             }).join("%0A");
 
-            const finalTotal = subtotal * (1 - discountPercent/100);
+            const finalTotal = subtotal * (1 - discountPercent/100) + deliveryFee;
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
             localStorage.setItem('orderHistory', JSON.stringify(history));
 
             try {
-                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, timestamp: Date.now() });
-                window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}`, '_blank');
+                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, status: "pending", timestamp: Date.now() });
+                window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A%0A*Zone:* ${zoneText}%0A*Total (inc. delivery):* MK ${finalTotal.toLocaleString()}`, '_blank');
                 cart = []; discountPercent = 0; updateCartUI(); updateHistoryUI();
             } catch (e) { alert(e.message); }
         };
@@ -461,6 +516,12 @@
             document.getElementById('modal-rating').innerHTML = `<i class="fas fa-star"></i> ${rating} Rating`;
             document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge in-stock">In Stock</span>`;
             document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id); closeModal(); };
+            
+            document.getElementById('modal-share-wa').onclick = () => {
+                const msg = `Check out this ${p.name} for only MK ${p.price.toLocaleString()} on ShopEasy! %0A%0A View here: ${window.location.href}`;
+                window.open(`https://wa.me/?text=${msg}`, '_blank');
+            };
+
             document.getElementById('productModal').style.display = 'flex';
         };
 
@@ -468,9 +529,7 @@
         window.closeModal = () => document.getElementById('productModal').style.display = 'none';
         window.toggleCart = () => {
             document.getElementById('cart-sidebar').classList.toggle('active');
-            // Reset checkout state when opening/closing
-            document.getElementById('proceed-btn').style.display = cart.length > 0 ? 'block' : 'none';
-            document.getElementById('final-fields').style.display = 'none';
+            updateCartUI();
         };
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
