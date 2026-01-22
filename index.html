@@ -143,7 +143,7 @@
 
         let allProducts = [];
         let cart = [];
-        const MY_PHONE = "265884963398"; 
+        const MY_PHONE = "265899195843"; 
 
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
             allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
