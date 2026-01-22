@@ -109,7 +109,7 @@
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
         #cart-sidebar.active { right: 0; }
         
-        /* New Back Button Header Style */
+        /* Back Button Header Style */
         .cart-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .back-shopping-btn { background: none; border: none; color: var(--text); font-size: 18px; cursor: pointer; padding: 5px; transition: 0.3s; }
         .back-shopping-btn:hover { color: var(--primary); transform: translateX(-3px); }
@@ -238,8 +238,14 @@
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
-            <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
-            <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
+            
+            <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
+
+            <div id="final-fields" style="display:none;">
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
+            </div>
+            
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
         </div>
 
@@ -366,6 +372,11 @@
             updateCartUI();
         };
 
+        window.showCheckoutFields = () => {
+            document.getElementById('proceed-btn').style.display = 'none';
+            document.getElementById('final-fields').style.display = 'block';
+        };
+
         function updateCartUI() {
             let subtotal = 0;
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
@@ -393,6 +404,15 @@
                 document.getElementById('discount-row').style.display = 'none';
             }
             document.getElementById('cart-total').innerText = finalTotal.toLocaleString();
+
+            // Handle Checkout Button Visibility
+            const proceedBtn = document.getElementById('proceed-btn');
+            if(cart.length > 0) {
+                proceedBtn.style.display = 'block';
+            } else {
+                proceedBtn.style.display = 'none';
+                document.getElementById('final-fields').style.display = 'none';
+            }
         }
 
         function updateHistoryUI() {
@@ -446,7 +466,12 @@
 
         window.showDetailsByID = (id) => showDetails(allProducts.find(item => item.id === id), "4.9");
         window.closeModal = () => document.getElementById('productModal').style.display = 'none';
-        window.toggleCart = () => document.getElementById('cart-sidebar').classList.toggle('active');
+        window.toggleCart = () => {
+            document.getElementById('cart-sidebar').classList.toggle('active');
+            // Reset checkout state when opening/closing
+            document.getElementById('proceed-btn').style.display = cart.length > 0 ? 'block' : 'none';
+            document.getElementById('final-fields').style.display = 'none';
+        };
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
