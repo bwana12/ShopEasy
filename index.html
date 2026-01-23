@@ -356,8 +356,11 @@
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
             <div id="final-fields" style="display:none;">
                 <input type="text" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
-                <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">Letters only please</label>
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <div style="display: flex; justify-content: space-between;">
+                    <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px;">Letters only please</label>
+                    <span id="char-count" style="font-size: 10px; color: #888;">0/50</span>
+                </div>
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" maxlength="50" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, ''); document.getElementById('char-count').innerText = this.value.length + '/50';" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
