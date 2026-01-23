@@ -21,7 +21,15 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 100%; max-width: 400px;
         }
         .login-card .logo { font-size: 28px; font-weight: bold; color: var(--primary); margin-bottom: 20px; }
-        .login-card input { margin-bottom: 15px; text-align: center; }
+        
+        /* Google Sign-In Button Style */
+        .btn-google {
+            background: white; color: #444; border: 1px solid #ddd; padding: 12px 20px;
+            border-radius: 8px; font-weight: bold; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; gap: 10px; width: 100%;
+            transition: 0.3s;
+        }
+        .btn-google:hover { background: #f8f8f8; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 
         /* Order Notification Toast */
         #order-toast {
@@ -104,9 +112,11 @@
     <div id="login-screen">
         <div class="login-card">
             <div class="logo">ShopEasy Admin</div>
-            <input type="password" id="admin-pass" placeholder="Password">
-            <button class="btn-post" onclick="checkLogin()">Login</button>
-            <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px; display:none;">Incorrect Password!</p>
+            <p style="margin-bottom: 20px; font-size: 14px; color: #666;">Secure access for store owner only.</p>
+            <button class="btn-google" onclick="loginAdmin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18"> Sign in with Google
+            </button>
+            <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px; display:none;">Unauthorized access!</p>
         </div>
     </div>
 
@@ -208,6 +218,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, query, orderBy, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -219,27 +230,37 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const ADMIN_EMAIL = "onganimwase1@gmail.com"; // <--- CHANGE THIS TO YOUR GMAIL
 
         let editId = null;
         let productsDataCache = {};
         let ordersDataCache = [];
         let initialLoad = true;
-        let bulkMode = "none"; // none, adjust
+        let bulkMode = "none";
 
-        window.checkLogin = () => {
-            const pass = document.getElementById('admin-pass').value;
-            if(pass === "@bwanamwase1") {
-                sessionStorage.setItem("auth", "ok");
+        // AUTHENTICATION LOGIC
+        window.loginAdmin = () => {
+            signInWithPopup(auth, provider).catch(err => alert(err.message));
+        };
+
+        window.logout = () => { if(confirm("Logout?")) { signOut(auth); } };
+
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === ADMIN_EMAIL) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('admin-dashboard').style.display = 'block';
-            } else { document.getElementById('login-error').style.display = 'block'; }
-        }
-
-        window.logout = () => { if(confirm("Logout?")) { sessionStorage.removeItem("auth"); window.location.reload(); } }
-        if(sessionStorage.getItem("auth") === "ok"){
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('admin-dashboard').style.display = 'block';
-        }
+            } else {
+                if (user) { 
+                    alert("Unauthorized!"); 
+                    signOut(auth);
+                }
+                document.getElementById('login-screen').style.display = 'flex';
+                document.getElementById('admin-dashboard').style.display = 'none';
+            }
+        });
 
         window.calcBulkFromPercent = () => {
             const price = Number(document.getElementById('price').value);
@@ -531,4 +552,3 @@ LOW: ${lowStockList.join(", ") || "None"}`;
     </script>
 </body>
 </html>
-
