@@ -32,12 +32,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: background 0.3s; }
 
-        /* Loading Animation Styles */
+        /* Loading Animation Styles - DISABLED */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: var(--card);
-            display: flex; flex-direction: column;
+            display: none; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease;
@@ -342,13 +342,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Loader control
+        // Loader control - Removed
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }, 2000);
+            const loader = document.getElementById('loader');
+            if(loader) loader.style.display = 'none';
+            // Animation logic removed
         });
 
         let allProducts = [];
@@ -400,7 +398,10 @@
         };
 
         function renderFeatured(list) {
-            document.getElementById('featured-list').innerHTML = list.slice(0, 4).map(p => `
+            const cutoff = Date.now() - (24 * 60 * 60 * 1000); 
+            const recent = list.filter(p => p.timestamp >= cutoff);
+            document.getElementById('featured-section-ui').style.display = recent.length ? 'block' : 'none';
+            document.getElementById('featured-list').innerHTML = recent.map(p => `
                 <div class="featured-item" onclick="showDetailsByID('${p.id}')">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="featured-info"><p>${p.name}</p><small>MK ${Number(p.price).toLocaleString()}</small></div>
