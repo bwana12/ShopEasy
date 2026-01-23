@@ -32,7 +32,6 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: background 0.3s; }
 
-        /* Loading Animation Styles - DISABLED */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -55,7 +54,6 @@
             100% { transform: scale(0.9); opacity: 0.7; }
         }
 
-        /* NEW ANIMATIONS AND STATUS STYLES */
         @keyframes shake {
             0% { transform: rotate(0); }
             25% { transform: rotate(15deg); }
@@ -68,8 +66,10 @@
         .low-stock-badge { background: #ff9800 !important; color: white !important; }
         .btn-disabled { background: #999 !important; cursor: not-allowed !important; opacity: 0.7; }
 
-        /* Navigation */
         nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        
+        /* Fixed Logo and About Us positioning */
+        .logo { display: flex; align-items: center; }
         .logo img { 
             height: 45px; width: 45px; 
             object-fit: cover;
@@ -80,18 +80,24 @@
             transition: 0.3s;
         }
         .logo img:hover { transform: scale(1.1); border-color: var(--secondary); }
+        .about-link { 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: var(--secondary); 
+            margin-left: 15px; /* Ensures it doesn't touch the logo */
+            font-size: 14px; 
+            white-space: nowrap;
+        }
 
         .nav-icons { display: flex; align-items: center; gap: 20px; }
         .cart-icon, .share-icon, .theme-icon { font-size: 20px; cursor: pointer; position: relative; color: var(--text); }
         .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
-        /* Search Bar */
         .search-section { padding: 15px 5%; background: var(--card); border-bottom: 1px solid var(--border); }
         .search-box { position: relative; max-width: 600px; margin: 0 auto; }
         .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid var(--border); outline: none; font-size: 16px; background: var(--bg); color: var(--text); }
         .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
 
-        /* Featured Section */
         .featured-title { padding: 15px 5% 5px; font-size: 18px; font-weight: bold; color: var(--text); }
         .featured-container { display: flex; gap: 15px; padding: 10px 5%; overflow-x: auto; scrollbar-width: none; }
         .featured-container::-webkit-scrollbar { display: none; }
@@ -99,20 +105,16 @@
         .featured-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: -1; }
         .featured-info { position: absolute; bottom: 10px; left: 10px; color: white; }
 
-        /* Rating Stars */
         .rating { color: var(--star); font-size: 11px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
 
-        /* Badges */
         .sale-badge { position: absolute; top: 10px; left: 10px; background: var(--sale); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
         .in-stock { background: #e8f5e9; color: var(--success); }
 
-        /* Filter Container */
         .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
         .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: var(--card); color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; }
         .filter-btn.active { background: var(--secondary); color: white; }
 
-        /* Grid */
         .container { padding: 0 5%; max-width: 1000px; margin: 0 auto; }
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
         .product-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; position: relative; }
@@ -122,7 +124,6 @@
         .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 5px 0; }
         .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
 
-        /* Testimonials Section */
         .testimonials { padding: 40px 5%; background: var(--bg); text-align: center; }
         .test-grid { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; }
         .test-grid::-webkit-scrollbar { display: none; }
@@ -130,7 +131,6 @@
         .test-card p { font-style: italic; font-size: 14px; margin-bottom: 10px; color: var(--text); }
         .test-card h4 { color: var(--primary); font-size: 13px; }
 
-        /* Newsletter */
         .newsletter { margin-top: 20px; padding: 40px 5%; background: var(--card); text-align: center; border-top: 1px solid var(--border); }
         .newsletter h3 { margin-bottom: 10px; color: var(--text); }
         .newsletter p { font-size: 14px; color: #666; margin-bottom: 20px; }
@@ -138,12 +138,10 @@
         .news-box input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
         .news-box button { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
 
-        /* Promo Code Box */
         .promo-box { display: flex; gap: 8px; margin-top: 15px; }
         .promo-box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
         .promo-btn { padding: 8px 15px; background: var(--dark); color: white; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
 
-        /* Sidebar & History */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
         #cart-sidebar.active { right: 0; }
         
@@ -159,7 +157,6 @@
         .clear-history-btn { font-size: 10px; color: var(--primary); cursor: pointer; font-weight: bold; border: none; background: none; }
         .history-item { font-size: 11px; background: var(--bg); padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
 
-        /* Modal & Image Zoom */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: var(--card); color: var(--text); padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; position: relative; }
         .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; z-index: 10; }
@@ -167,7 +164,6 @@
         .zoom-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; position: relative; cursor: zoom-in; background: #eee; }
         #modal-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.1s ease-out; transform-origin: center center; }
 
-        /* Contact FAB */
         .contact-fab { position: fixed; bottom: 20px; left: 20px; z-index: 999; }
         .fab-btn { width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); position: relative; }
         .fab-options { position: absolute; bottom: 60px; left: 0; display: none; flex-direction: column; gap: 10px; transition: 0.3s; }
@@ -176,8 +172,14 @@
         .opt.wa { background: #25D366; }
         .opt.ph { background: var(--secondary); }
 
-        /* Back to Top */
         #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
+
+        .page-content { display: none; padding: 40px 5%; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        .page-content h2 { color: var(--primary); margin-bottom: 20px; }
+        .page-content h3 { margin-top: 20px; color: var(--secondary); }
+        .page-content p { margin-bottom: 15px; }
+        .return-btn { display: inline-block; margin-bottom: 20px; padding: 8px 15px; background: var(--secondary); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
+        .policy-link-footer { display: block; text-align: center; margin-top: 40px; color: var(--secondary); cursor: pointer; text-decoration: underline; font-size: 13px; }
     </style>
 </head>
 <body id="top">
@@ -194,6 +196,8 @@
     <nav>
         <div class="logo">
             <img src="logo.png" alt="ShopEasy" onclick="popLogo()">
+            <span class="about-link" onclick="showPage('about-page')">About Us</span>
+            <span class="about-link" onclick="showPage('admin-page')" style="color: var(--primary); margin-left: 10px;">+ Add</span>
         </div>
         <div class="nav-icons">
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
@@ -202,65 +206,121 @@
         </div>
     </nav>
 
-    <div class="search-section">
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Search..." onkeyup="handleSearch()"><i class="fas fa-search"></i>
+    <div id="admin-page" class="page-content">
+        <button class="return-btn" onclick="showPage('home-page')"><i class="fas fa-arrow-left"></i> Back to Home</button>
+        <h2>Add New Product</h2>
+        <div style="background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--border);">
+            <label>Product Name (Letters & Numbers Only):</label>
+            <input type="text" id="new-p-name" placeholder="e.g. Samsung S23" 
+                   oninput="this.value = this.value.replace(/[^a-zA-Z0-9 ]/g, '')"
+                   style="width:100%; padding:10px; margin: 10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+            
+            <label>Price (MK):</label>
+            <input type="number" id="new-p-price" placeholder="500000" style="width:100%; padding:10px; margin: 10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+            
+            <label>Category:</label>
+            <select id="new-p-cat" style="width:100%; padding:10px; margin: 10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                <option value="Electronics">Electronics</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Home">Home</option>
+                <option value="Beauty">Beauty</option>
+            </select>
+
+            <label>Stock Quantity:</label>
+            <input type="number" id="new-p-stock" placeholder="10" style="width:100%; padding:10px; margin: 10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+
+            <label>Product Description:</label>
+            <textarea id="new-p-desc" placeholder="Details about the product..." style="width:100%; padding:10px; margin: 10px 0; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text); height: 80px;"></textarea>
+            
+            <label>Upload Image from Folder:</label>
+            <input type="file" id="new-p-image" accept="image/*" style="width:100%; padding:10px; margin: 10px 0; color:var(--text);">
+            
+            <div id="image-preview-container" style="display:none; margin: 10px 0;">
+                <p style="font-size: 12px;">Image Preview:</p>
+                <img id="upload-preview" src="" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+            </div>
+
+            <button class="btn-buy" id="save-product-btn" onclick="handleFileUpload()" style="margin-top: 20px; padding: 15px;">🚀 Upload Product to Website</button>
         </div>
     </div>
 
-    <div id="featured-section-ui">
-        <h3 class="featured-title">🔥 New Arrivals</h3>
-        <div class="featured-container" id="featured-list"></div>
-    </div>
+    <div id="home-page">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search..." onkeyup="handleSearch()"><i class="fas fa-search"></i>
+            </div>
+        </div>
 
-    <div class="filter-container">
-        <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
-        <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
-        <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
-        <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
-        <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
-    </div>
+        <div id="featured-section-ui">
+            <h3 class="featured-title">🔥 New Arrivals</h3>
+            <div class="featured-container" id="featured-list"></div>
+        </div>
 
-    <div class="container">
-        <div class="products-grid" id="store-container"></div>
-    </div>
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
+            <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
+            <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
+            <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
+            <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+        </div>
 
-    <div class="testimonials">
-        <h3>What Our Customers Say</h3>
-        <div class="test-grid">
-            <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
-            <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
-            <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
+        <div class="container">
+            <div class="products-grid" id="store-container"></div>
+        </div>
+
+        <div class="testimonials">
+            <h3>What Our Customers Say</h3>
+            <div class="test-grid">
+                <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
+                <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
+                <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
+            </div>
+        </div>
+
+        <div class="newsletter">
+            <h3>Join the ShopEasy Club!</h3>
+            <p>Get exclusive deals and first access to new stock in Malawi.</p>
+            <div class="news-box">
+                <input type="email" id="news-email" placeholder="Your email address">
+                <button id="news-btn" onclick="subscribeNews()">Join</button>
+            </div>
         </div>
     </div>
 
-    <div class="newsletter">
-        <h3>Join the ShopEasy Club!</h3>
-        <p>Get exclusive deals and first access to new stock in Malawi.</p>
-        <div class="news-box">
-            <input type="email" id="news-email" placeholder="Your email address">
-            <button id="news-btn" onclick="subscribeNews()">Join</button>
-        </div>
+    <div id="about-page" class="page-content">
+        <button class="return-btn" onclick="showPage('home-page')"><i class="fas fa-arrow-left"></i> Back to Shopping</button>
+        <h2>About ShopEasy Malawi</h2>
+        <p>Welcome to <strong>ShopEasy</strong>, Malawi's premier destination for high-quality electronics, fashion, and home essentials.</p>
+        
+        <h3>Why Choose Us?</h3>
+        <ul>
+            <li><strong>Nationwide Delivery:</strong> We deliver to Blantyre, Lilongwe, Mzuzu, and Zomba within 24-48 hours.</li>
+            <li><strong>Quality Guaranteed:</strong> Every product is inspected by our team to ensure it meets international standards.</li>
+            <li><strong>Customer First:</strong> Our WhatsApp support is available 7 days a week.</li>
+        </ul>
+        <span class="policy-link-footer" onclick="showPage('policy-page')">View Privacy Policy</span>
+    </div>
+
+    <div id="policy-page" class="page-content">
+        <button class="return-btn" onclick="showPage('about-page')"><i class="fas fa-arrow-left"></i> Return</button>
+        <h2>Privacy Policy</h2>
+        <p>At ShopEasy, we respect your privacy and are committed to protecting your personal data.</p>
     </div>
 
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            
             <div class="zoom-container" id="zoom-area">
                 <img id="modal-img" src="" onerror="this.src='https://via.placeholder.com/400'">
             </div>
-            
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <div id="modal-stock-div"></div>
                 <button onclick="shareProductLink()" style="background:none; border:none; color:var(--secondary); cursor:pointer; font-size:14px;"><i class="fas fa-share-nodes"></i> Share</button>
             </div>
-
             <div id="modal-rating" class="rating" style="margin-top: 5px; font-size: 14px;"></div>
             <h3 id="modal-name"></h3>
             <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
             <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:15px;"></p>
-
             <div id="modal-qty-container" style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <span style="font-size: 13px; font-weight: bold;">Select Quantity:</span>
@@ -275,7 +335,6 @@
                     <span id="modal-subtotal" style="font-weight: bold; color: var(--text); font-size: 14px;">MK 0</span>
                 </div>
             </div>
-
             <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">Add to Cart</button>
         </div>
     </div>
@@ -295,29 +354,21 @@
         </div>
         <hr><br>
         <div id="cart-items-list"></div>
-        
         <div class="promo-box">
             <input type="text" id="promo-input" placeholder="Promo Code (e.g. SAVE10)">
             <button class="promo-btn" onclick="applyPromo()">Apply</button>
         </div>
-
         <div style="margin-top: 20px;">
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
-            
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
-
             <div id="final-fields" style="display:none;">
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" 
-                oninput="if(/[0-9]/.test(this.value)){ this.style.borderColor='red'; this.placeholder='Only letters allowed'; this.value=this.value.replace(/[0-9]/g,''); setTimeout(()=>{this.style.borderColor='var(--border)'; this.placeholder='Enter Your Full Name';}, 1500); }" 
-                style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); transition: 0.3s;">
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
-            
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
         </div>
-
         <div class="history-section" id="history-container">
             <div class="history-header">
                 <h4>📜 Order History</h4>
@@ -344,7 +395,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Loader control - Removed
+        window.showPage = (pageId) => {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('about-page').style.display = 'none';
+            document.getElementById('policy-page').style.display = 'none';
+            document.getElementById('admin-page').style.display = 'none';
+            document.getElementById(pageId).style.display = 'block';
+            window.scrollTo(0, 0);
+        };
+
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             if(loader) loader.style.display = 'none';
@@ -372,6 +431,61 @@
             renderProducts(allProducts);
             renderFeatured(allProducts);
             updateHistoryUI();
+        });
+
+        // UPLOAD LOGIC
+        window.handleFileUpload = async () => {
+            const name = document.getElementById('new-p-name').value;
+            const price = document.getElementById('new-p-price').value;
+            const cat = document.getElementById('new-p-cat').value;
+            const stock = document.getElementById('new-p-stock').value;
+            const desc = document.getElementById('new-p-desc').value;
+            const fileInput = document.getElementById('new-p-image');
+            const btn = document.getElementById('save-product-btn');
+
+            if(!name || !price || !fileInput.files[0]) return alert("Please fill all fields and select an image.");
+
+            btn.disabled = true;
+            btn.innerText = "Uploading... Please wait";
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = async () => {
+                const base64Image = reader.result;
+                try {
+                    await addDoc(collection(db, "products"), {
+                        name: name,
+                        price: Number(price),
+                        category: cat,
+                        stock: Number(stock),
+                        description: desc,
+                        image: base64Image,
+                        timestamp: Date.now()
+                    });
+                    alert("Product Uploaded Successfully!");
+                    location.reload();
+                } catch (error) {
+                    alert("Upload failed.");
+                    btn.disabled = false;
+                    btn.innerText = "Upload Product to Website";
+                }
+            };
+            reader.readAsDataURL(file);
+        };
+
+        document.getElementById('new-p-image').addEventListener('change', function() {
+            const preview = document.getElementById('upload-preview');
+            const container = document.getElementById('image-preview-container');
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    container.style.display = 'block';
+                }
+                reader.readAsDataURL(file);
+            }
         });
 
         window.subscribeNews = async () => {
@@ -485,7 +599,7 @@
             let subtotal = 0;
             document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
             document.getElementById('cart-items-list').innerHTML = cart.map(i => {
-                const currentPrice = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
+                const currentPrice = i.price;
                 subtotal += currentPrice * i.qty;
                 return `<div class="cart-item"><div><b>${i.name}</b><br><small>MK ${(currentPrice * i.qty).toLocaleString()}</small></div>
                     <div class="qty-box"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
@@ -514,8 +628,7 @@
             if(!name || !cart.length) return alert("Enter name and add items!");
             let subtotal = 0;
             let itemsText = cart.map(i => {
-                const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
-                subtotal += (p * i.qty); return `- ${i.name} (x${i.qty})`;
+                subtotal += (i.price * i.qty); return `- ${i.name} (x${i.qty})`;
             }).join("%0A");
             const finalTotal = subtotal * (1 - discountPercent/100);
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
@@ -569,7 +682,7 @@
             document.getElementById('sound-pop').play(); zoomImg.src = "logo.png";
             document.getElementById('modal-name').innerText = "ShopEasy Official Logo";
             document.getElementById('modal-price').innerText = "Mwase's Online Store";
-            document.getElementById('modal-desc').innerText = "Established in Malawi. Providing premium products with fast delivery.";
+            document.getElementById('modal-desc').innerText = "Established in Malawi.";
             document.getElementById('modal-rating').innerHTML = ""; document.getElementById('modal-stock-div').innerHTML = "";
             document.getElementById('modal-qty-container').style.display = 'none'; document.getElementById('modal-add-btn').style.display = 'none';
             document.getElementById('productModal').style.display = 'flex';
