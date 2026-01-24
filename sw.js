@@ -3,16 +3,7 @@ const CACHE_NAME = "shopeasy-v1";
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
-  "./logo.png",
-  "./manifest.json",
-
-  // Firebase SDKs
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js",
-  "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js",
-
-  // Icons (add if you have them)
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./logo.png"
 ];
 
 // Install
@@ -28,12 +19,15 @@ self.addEventListener("install", event => {
 // Activate
 self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then(keys => {
-      return Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-            .map(key => caches.delete(key))
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
+    )
   );
   self.clients.claim();
 });
@@ -42,9 +36,12 @@ self.addEventListener("activate", event => {
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(response => {
-      return response || fetch(event.request).catch(() => {
-        return caches.match("./index.html");
-      });
+      return (
+        response ||
+        fetch(event.request).catch(() =>
+          caches.match("./index.html")
+        )
+      );
     })
   );
 });
