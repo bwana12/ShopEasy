@@ -30,7 +30,6 @@
             --shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* UPDATED: touch-action manipulation prevents double-tap zoom on buttons */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         html, body { touch-action: manipulation; } 
         body { background: var(--bg); color: var(--text); padding-bottom: 55px; overflow-x: hidden; transition: background 0.3s; }
@@ -38,7 +37,7 @@
         /* Loader */
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--card); display: none; flex-direction: column;
+            background: var(--card); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
@@ -97,20 +96,16 @@
             transform: scale(1.05);
             box-shadow: 0 4px 12px rgba(228, 44, 100, 0.4);
         }
-        .install-btn i {
-            font-size: 14px;
-        }
 
-        /* PWA Mode adjustments */
         body.pwa-mode {
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
 
-        /* Search - UPDATED: Sticky search bar */
+        /* Search */
         .search-section {
             position: sticky;
-            top: 70px; /* below nav */
+            top: 70px;
             z-index: 99;
             padding: 15px 5%;
             background: var(--card);
@@ -133,45 +128,42 @@
         .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: var(--card); color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; }
         .filter-btn.active { background: var(--secondary); color: white; }
 
-        /* UPDATED: GRID SYSTEM RESPONSIVENESS */
+        /* GRID SYSTEM RESPONSIVENESS */
         .container { padding: 0 5%; max-width: 1000px; margin: 0 auto; }
         .products-grid { display: grid; gap: 12px; }
 
-        /* Phones: 2 Columns */
         @media (max-width: 600px) {
             .products-grid { grid-template-columns: repeat(2, 1fr); }
             .install-btn { padding: 7px 12px; font-size: 12px; }
         }
-        /* Tablets: 4 Columns */
         @media (min-width: 601px) and (max-width: 1024px) {
             .products-grid { grid-template-columns: repeat(4, 1fr); }
         }
-        /* Desktop: Auto Responsive */
         @media (min-width: 1025px) {
             .products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
         }
 
         .product-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; position: relative; }
-        
-        /* UPDATED: Image Rendering Quality Lock */
-        .p-img { 
-            width: 100%; height: 140px; object-fit: cover; 
-            image-rendering: auto; /* Browser default high quality */
-            transform: translateZ(0); /* Hardware acceleration for sharpness */
-        }
-        
+        .p-img { width: 100%; height: 140px; object-fit: cover; image-rendering: auto; transform: translateZ(0); }
         .p-info { padding: 10px; }
         .p-name { font-weight: bold; font-size: 13px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--text); }
         .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 5px 0; }
         .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
         
-        /* Badges */
         .sale-badge { position: absolute; top: 10px; left: 10px; background: var(--sale); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
         .in-stock { background: #e8f5e9; color: var(--success); }
         .rating { color: var(--star); font-size: 11px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
 
-        /* Testimonials */
+        /* Footer Section */
+        #footer-section {
+            position: fixed; bottom: -100%; left: 0; width: 100%;
+            max-height: 90vh; overflow-y: auto; background: var(--bg);
+            transition: bottom 0.4s ease; z-index: 1500;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+        #footer-section.active { bottom: 0; }
+
         .testimonials { padding: 40px 5%; background: var(--bg); text-align: center; }
         .test-grid { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; }
         .test-grid::-webkit-scrollbar { display: none; }
@@ -179,7 +171,6 @@
         .test-card p { font-style: italic; font-size: 14px; margin-bottom: 10px; color: var(--text); }
         .test-card h4 { color: var(--primary); font-size: 13px; }
 
-        /* Partners */
         .partnership-section { margin-top: 20px; padding: 40px 5%; background: var(--card); text-align: center; border-top: 1px solid var(--border); overflow: hidden; }
         .partnership-section h3 { margin-bottom: 20px; color: var(--text); font-size: 18px; }
         .logo-slider { display: flex; align-items: center; gap: 50px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; justify-content: center; }
@@ -187,84 +178,25 @@
         .partner-logo { height: 40px; opacity: 0.8; transition: 0.3s; flex-shrink: 0; }
         .partner-logo:hover { opacity: 1; transform: scale(1.1); }
         .partner-btn { display: inline-block; margin-top: 20px; background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; text-decoration: none; cursor: pointer; transition: 0.3s; font-size: 14px; }
-        .partner-btn:hover { background: var(--secondary); transform: translateY(-2px); }
 
-        /* UPDATED: Footer Section */
-        #footer-section {
-            position: fixed;
-            bottom: -100%;
-            left: 0;
-            width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            background: var(--bg);
-            transition: bottom 0.4s ease;
-            z-index: 1500;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
-        }
-        #footer-section.active {
-            bottom: 0;
-        }
-
-        /* UPDATED: Footer Access Button */
-        #footer-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background: var(--secondary);
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: var(--shadow);
-        }
-
-        /* NEW: Sticky Bottom Action Bar */
+        /* Bottom Action Bar */
         #bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 55px;
-            background: var(--card);
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 2000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 55px;
+            background: var(--card); border-top: 1px solid var(--border);
+            display: flex; justify-content: space-around; align-items: center;
+            z-index: 2000; box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
         }
         #bottom-bar button {
-            border: none;
-            background: var(--secondary);
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
+            border: none; background: var(--secondary); color: white;
+            padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;
         }
-        #page-indicator {
-            font-weight: bold;
-            font-size: 12px;
-        }
+        #page-indicator { font-weight: bold; font-size: 12px; }
 
-        /* NEW: Live Toast */
+        /* Live Toast */
         #toast {
-            position: fixed;
-            bottom: 120px;
-            right: 15px;
-            background: var(--dark);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 10px;
-            font-size: 12px;
-            display: none;
-            z-index: 3000;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: fixed; bottom: 120px; right: 15px; background: var(--dark);
+            color: white; padding: 10px 15px; border-radius: 10px; font-size: 12px;
+            display: none; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             animation: slideIn 0.3s ease;
         }
         @keyframes slideIn {
@@ -272,30 +204,16 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* NEW: Order Progress */
-        .order-progress {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-        }
-        .step {
-            flex: 1;
-            text-align: center;
-            font-size: 10px;
-            padding: 5px;
-            border-bottom: 3px solid #ccc;
-        }
-        .step.active {
-            border-color: var(--success);
-            font-weight: bold;
-        }
+        /* Order Progress */
+        .order-progress { display: flex; justify-content: space-between; margin-top: 15px; }
+        .step { flex: 1; text-align: center; font-size: 10px; padding: 5px; border-bottom: 3px solid #ccc; }
+        .step.active { border-color: var(--success); font-weight: bold; }
 
-        /* Cart & Sidebar */
+        /* Cart Sidebar */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
         #cart-sidebar.active { right: 0; }
         .cart-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .back-shopping-btn { background: none; border: none; color: var(--text); font-size: 18px; cursor: pointer; padding: 5px; transition: 0.3s; }
-        .back-shopping-btn:hover { color: var(--primary); transform: translateX(-3px); }
         .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .qty-btn { background: var(--bg); color: var(--text); border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
@@ -307,27 +225,15 @@
         .clear-history-btn { font-size: 10px; color: var(--primary); cursor: pointer; font-weight: bold; border: none; background: none; }
         .history-item { font-size: 11px; background: var(--bg); padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
 
-        /* UPDATED: Modal & Animation */
+        /* Modal */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; }
-        
-        /* Slide Up Animation */
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        
-        .modal-content { 
-            background: var(--card); color: var(--text); padding: 20px; border-radius: 15px; 
-            max-width: 400px; width: 100%; position: relative; 
-            animation: slideUp 0.35s ease-out; /* Smooth entrance */
-        }
-        
+        .modal-content { background: var(--card); color: var(--text); padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; position: relative; animation: slideUp 0.35s ease-out; }
         .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; z-index: 10; }
-        
-        /* Removed cursor: zoom-in, removed hover effect */
         .zoom-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; position: relative; background: #eee; cursor: default; }
-        
-        /* Clean image rendering for popup */
         #modal-img { width: 100%; height: 100%; object-fit: cover; transform: translateZ(0); }
 
-        /* FAB & Others */
+        /* FAB */
         .contact-fab { position: fixed; bottom: 60px; left: 20px; z-index: 999; }
         .fab-btn { width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); position: relative; }
         .fab-options { position: absolute; bottom: 60px; left: 0; display: none; flex-direction: column; gap: 10px; transition: 0.3s; }
@@ -349,29 +255,11 @@
 
         /* Wishlist heart */
         .wishlist-heart {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            color: #ddd;
-            cursor: pointer;
-            z-index: 5;
-            background: rgba(255,255,255,0.8);
-            width: 25px;
-            height: 25px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
+            position: absolute; top: 10px; right: 10px; color: #ddd; cursor: pointer; z-index: 5;
+            background: rgba(255,255,255,0.8); width: 25px; height: 25px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; transition: 0.3s;
         }
-        .wishlist-heart:hover {
-            color: var(--primary);
-            background: rgba(255,255,255,1);
-        }
-        .wishlist-heart.active {
-            color: var(--primary);
-            background: rgba(255,255,255,1);
-        }
+        .wishlist-heart:hover, .wishlist-heart.active { color: var(--primary); background: rgba(255,255,255,1); }
     </style>
 </head>
 <body id="top">
@@ -391,11 +279,9 @@
         </div>
         <span class="about-link" onclick="showPage('about-page')">About Us</span>
         <div class="nav-icons">
-            <!-- PWA Install Button -->
             <button class="install-btn" onclick="showInstallPrompt()" id="install-button">
                 <i class="fas fa-download"></i> Install App
             </button>
-            
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode">
                 <i class="fas fa-moon" id="theme-icon"></i>
             </div>
@@ -433,7 +319,6 @@
             <div class="products-grid" id="store-container"></div>
         </div>
 
-        <!-- UPDATED: Footer Section -->
         <div id="footer-section">
             <button class="return-btn" onclick="toggleFooter()">⬇ Close Footer</button>
             <div class="testimonials">
@@ -462,42 +347,20 @@
     <div id="about-page" class="page-content">
         <button class="return-btn" onclick="showPage('home-page')"><i class="fas fa-arrow-left"></i> Back to Shopping</button>
         <h2>About ShopEasy Malawi</h2>
-        <p>Welcome to <strong>ShopEasy</strong>, Malawi's premier destination for high-quality electronics, fashion, and home essentials. Founded with a vision to bridge the gap between premium global products and Malawian doorsteps, we pride ourselves on being reliable, fast, and affordable.</p>
-        
+        <p>Welcome to <strong>ShopEasy</strong>, Malawi's premier destination for high-quality electronics, fashion, and home essentials.</p>
         <h3>Why Choose Us?</h3>
         <ul>
             <li><strong>Nationwide Delivery:</strong> We deliver to Blantyre, Lilongwe, Mzuzu, and Zomba within 24-48 hours.</li>
-            <li><strong>Quality Guaranteed:</strong> Every product is inspected by our team to ensure it meets international standards.</li>
-            <li><strong>Customer First:</strong> Our WhatsApp support is available 7 days a week to assist with your orders.</li>
-            <li><strong>Fair Pricing:</strong> We strive to provide the most competitive prices in the Malawian market.</li>
+            <li><strong>Quality Guaranteed:</strong> Every product is inspected by our team.</li>
+            <li><strong>Customer First:</strong> Our WhatsApp support is available 7 days a week.</li>
         </ul>
-
-        <h3>Our Mission</h3>
-        <p>To empower Malawian consumers by providing a seamless, secure, and modern shopping experience. We believe everyone deserves access to the best products without the hassle of long shipping times from abroad.</p>
-        
         <span class="policy-link-footer" onclick="showPage('policy-page')">View Privacy Policy</span>
     </div>
 
     <div id="policy-page" class="page-content">
         <button class="return-btn" onclick="showPage('about-page')"><i class="fas fa-arrow-left"></i> Return</button>
         <h2>Privacy Policy</h2>
-        <p>At ShopEasy, we respect your privacy and are committed to protecting your personal data.</p>
-        
-        <h3>1. Information We Collect</h3>
-        <p>When you place an order, we collect your name and WhatsApp contact details solely for the purpose of fulfilling your order and communicating delivery status.</p>
-
-        <h3>2. How We Use Your Data</h3>
-        <p>Your data is used to process orders, improve our services, and send you exclusive offers if you have subscribed to our newsletter.</p>
-
-        <h3>3. Data Security</h3>
-        <p>We use secure Firebase databases to store your information. We never sell your personal data to third parties.</p>
-
-        <h3>4. Order History</h3>
-        <p>Order history is stored locally on your device (browser storage) to help you track your purchases. You can clear this at any time using the "Clear History" button in the cart.</p>
-
-        <h3>5. Contact Us</h3>
-        <p>If you have any questions regarding these policies, please contact us via our WhatsApp support button.</p>
-        <br>
+        <p>At ShopEasy, we respect your privacy. We collect your name and contact details solely to fulfill orders. We do not sell data to third parties.</p>
         <button class="return-btn" onclick="showPage('home-page')">Back to Home</button>
     </div>
 
@@ -533,7 +396,6 @@
         </div>
     </div>
 
-    <!-- NEW: Live Toast -->
     <div id="toast"></div>
 
     <div class="contact-fab">
@@ -551,7 +413,6 @@
         </div>
         <hr><br>
         
-        <!-- NEW: Order Progress -->
         <div class="order-progress">
             <div class="step active">Placed</div>
             <div class="step">Processing</div>
@@ -560,7 +421,6 @@
         
         <div id="cart-items-list"></div>
         
-        <!-- NEW: Delivery Location -->
         <div style="margin-top: 15px;">
             <label style="font-size: 11px; color: var(--secondary); font-weight: bold;">Delivery Location:</label>
             <select id="delivery-location" onchange="calcDelivery()" style="width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size: 12px;">
@@ -619,7 +479,6 @@
 
     <button id="back-to-top" onclick="window.scrollTo(0, 0)"><i class="fas fa-arrow-up"></i></button>
 
-    <!-- NEW: Sticky Bottom Action Bar -->
     <div id="bottom-bar">
         <button onclick="prevPage()">◀ Prev</button>
         <span id="page-indicator">Page 1</span>
@@ -630,7 +489,15 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            onSnapshot, 
+            query, 
+            orderBy, 
+            enableIndexedDbPersistence 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -640,10 +507,25 @@
             messagingSenderId: "45827037951",
             appId: "1:45827037951:web:545d41703780fa51018aca"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // UPDATED: Shuffle products array function
+        // --- ENABLE OFFLINE DATA PERSISTENCE ---
+        try {
+            enableIndexedDbPersistence(db).catch((err) => {
+                if (err.code == 'failed-precondition') {
+                    console.log('Multiple tabs open, persistence can only be enabled in one tab at a time.');
+                } else if (err.code == 'unimplemented') {
+                    console.log('The current browser does not support all of the features required to enable persistence');
+                }
+            });
+            console.log("Offline storage enabled");
+        } catch(e) {
+            console.log("Persistence error", e);
+        }
+
+        // Shuffle products
         function shuffleArray(arr) {
             return arr
                 .map(value => ({ value, sort: Math.random() }))
@@ -651,11 +533,10 @@
                 .map(({ value }) => value);
         }
 
-        // NEW: Pagination Variables
+        // Pagination
         let currentPage = 1;
         const ITEMS_PER_PAGE = 8;
 
-        // NEW: Pagination Functions
         function paginateProducts(list) {
             const start = (currentPage - 1) * ITEMS_PER_PAGE;
             const end = start + ITEMS_PER_PAGE;
@@ -663,7 +544,7 @@
             return list.slice(start, end);
         }
 
-        function nextPage() {
+        window.nextPage = () => {
             if (currentPage * ITEMS_PER_PAGE < allProducts.length) {
                 currentPage++;
                 renderProducts(paginateProducts(allProducts));
@@ -671,7 +552,7 @@
             }
         }
 
-        function prevPage() {
+        window.prevPage = () => {
             if (currentPage > 1) {
                 currentPage--;
                 renderProducts(paginateProducts(allProducts));
@@ -679,7 +560,7 @@
             }
         }
 
-        // NEW: Wishlist Function
+        // Wishlist
         window.toggleWishlist = (id) => {
             let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
             if (list.includes(id)) {
@@ -692,20 +573,18 @@
             localStorage.setItem('wishlist', JSON.stringify(list));
         }
 
-        // NEW: Delivery Fee Calculator
+        // Delivery
         window.calcDelivery = () => {
             const deliverySelect = document.getElementById('delivery-location');
             const fee = Number(deliverySelect.value);
             document.getElementById('delivery-fee').innerText = fee.toLocaleString();
             
-            // Recalculate total
             const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
             const discount = Number(document.getElementById('cart-discount').innerText.replace(/,/g,'') || 0);
             const total = subtotal - discount + fee;
             document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
-        // Navigation Logic
         window.showPage = (pageId) => {
             document.getElementById('home-page').style.display = 'none';
             document.getElementById('about-page').style.display = 'none';
@@ -714,7 +593,6 @@
             window.scrollTo(0, 0);
         };
 
-        // Loader control
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             if(loader) loader.style.display = 'none';
@@ -769,8 +647,11 @@
 
         if (localStorage.getItem('theme') === 'dark') toggleTheme();
 
-        // UPDATED: Products are now shuffled on every refresh and paginated
-        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
+        // Products Listener
+        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), { includeMetadataChanges: true }, (snapshot) => {
+            if (snapshot.metadata.fromCache) {
+                 console.log("Serving data from offline cache");
+            }
             allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
             renderProducts(paginateProducts(allProducts));
             renderFeatured(allProducts);
@@ -783,12 +664,10 @@
             else { navigator.clipboard.writeText(window.location.href); alert("Store link copied!"); }
         };
 
-        // NEW: Footer Toggle
         window.toggleFooter = () => {
             document.getElementById('footer-section').classList.toggle('active');
         };
 
-        // NEW: Open Contact
         window.openContact = () => {
             window.open('https://wa.me/265899195843', '_blank');
         };
@@ -807,8 +686,6 @@
         function renderProducts(list) {
             const cont = document.getElementById('store-container');
             cont.innerHTML = "";
-            
-            // Get wishlist from localStorage
             const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
             
             list.forEach(p => {
@@ -823,8 +700,6 @@
                 
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                
-                // Check if in wishlist
                 const isInWishlist = wishlist.includes(p.id);
                 
                 card.innerHTML = `
@@ -999,7 +874,7 @@
                 updateHistoryUI();
                 showToast();
                 
-            } catch (e) { alert(e.message); }
+            } catch (e) { alert("Error placing order: " + e.message); }
         };
 
         window.handleSearch = () => {
@@ -1007,7 +882,6 @@
             renderProducts(paginateProducts(allProducts.filter(p => p.name.toLowerCase().includes(q))));
         };
 
-        // NEW: Live Toast Function
         const towns = ["Blantyre", "Lilongwe", "Zomba", "Mzuzu", "Karonga", "Mulanje", "Thyolo"];
         function showToast() {
             if (allProducts.length === 0) return;
@@ -1020,13 +894,9 @@
             setTimeout(() => toast.style.display = 'none', 4000);
         }
         
-        // Show toast every 15-30 seconds
         setInterval(showToast, 15000 + Math.random() * 15000);
-        
-        // Show initial toast after 5 seconds
         setTimeout(showToast, 5000);
 
-        // UPDATED: Modal Zoom removed. Pure slide-in and static image logic.
         const zoomImg = document.getElementById('modal-img');
 
         window.showDetails = (p, rating) => {
@@ -1073,37 +943,19 @@
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            currentPage = 1; // Reset to page 1 when filtering
+            currentPage = 1;
             const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
             renderProducts(paginateProducts(filtered));
         };
 
-        // UPDATED: Back-to-top button activation
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById('back-to-top');
-            btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-        });
-
-        // ============================================
-        // PWA INSTALLATION FEATURES
-        // ============================================
-        
+        // PWA Features
         let deferredPrompt;
         const installButton = document.getElementById('install-button');
 
-        // Listen for beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
-            // Stash the event so it can be triggered later
             deferredPrompt = e;
-            // Show the install button
-            if (installButton) {
-                installButton.style.display = 'flex';
-                console.log('Install button shown - PWA ready to install');
-            }
-            
-            // Show a toast notification about installation
+            if (installButton) installButton.style.display = 'flex';
             setTimeout(() => {
                 const toast = document.getElementById('toast');
                 if (toast && !localStorage.getItem('installPromptSeen')) {
@@ -1115,101 +967,35 @@
             }, 10000);
         });
 
-        // Show install prompt when button clicked
         window.showInstallPrompt = () => {
             if (deferredPrompt) {
-                // Show the install prompt
                 deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                        // Hide the install button
-                        if (installButton) {
-                            installButton.style.display = 'none';
-                        }
-                        // Show success message
-                        alert('🎉 ShopEasy installed successfully! Find it on your home screen.');
-                    } else {
-                        console.log('User dismissed the install prompt');
+                        if (installButton) installButton.style.display = 'none';
                     }
                     deferredPrompt = null;
                 });
-            } else {
-                // If deferredPrompt is not available, show instructions
-                alert("To install ShopEasy:\n\n📱 Mobile: Tap browser menu (⋮ or ⠇) then 'Add to Home Screen'\n💻 Desktop: Look for install icon in address bar (📥)");
             }
         };
 
-        // Detect if app is already installed
         window.addEventListener('appinstalled', (evt) => {
-            console.log('ShopEasy was successfully installed');
-            if (installButton) {
-                installButton.style.display = 'none';
-            }
-            // Show welcome message
-            setTimeout(() => {
-                const toast = document.getElementById('toast');
-                if (toast) {
-                    toast.innerText = "🎉 Welcome to ShopEasy app!";
-                    toast.style.display = 'block';
-                    setTimeout(() => toast.style.display = 'none', 4000);
-                }
-            }, 1000);
+            if (installButton) installButton.style.display = 'none';
         });
 
-        // Check if running as PWA
-        function isRunningAsPWA() {
-            return window.matchMedia('(display-mode: standalone)').matches || 
-                   window.navigator.standalone === true ||
-                   document.referrer.includes('android-app://');
-        }
-
-        // Adjust UI for installed PWA
-        if (isRunningAsPWA()) {
+        if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
             document.body.classList.add('pwa-mode');
-            // Hide install button when already installed
-            if (installButton) {
-                installButton.style.display = 'none';
-            }
-            console.log('Running as installed PWA');
+            if (installButton) installButton.style.display = 'none';
         }
 
-        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    
-                    // Check for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        console.log('New service worker found');
-                        
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New update available
-                                const toast = document.getElementById('toast');
-                                if (toast) {
-                                    toast.innerText = "🔄 New version available! Refresh to update.";
-                                    toast.style.display = 'block';
-                                    toast.onclick = () => window.location.reload();
-                                    setTimeout(() => toast.style.display = 'none', 8000);
-                                }
-                            }
-                        });
-                    });
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => console.log('SW Registered', registration))
+                    .catch(err => console.log('SW Failed', err));
             });
         }
 
-        // ============================================
-        // END PWA FEATURES
-        // ============================================
-
-        // UPDATED: Disable browser zoom (Ctrl+Wheel) and Double Tap Zoom
         window.addEventListener('wheel', function (e) {
             if (e.ctrlKey) { e.preventDefault(); }
         }, { passive: false });
@@ -1221,16 +1007,5 @@
             lastTouchEnd = now;
         }, false);
     </script>
-
-    <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch(err => console.log("SW failed", err));
-  });
-}
-</script>
 </body>
 </html>
