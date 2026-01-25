@@ -416,6 +416,14 @@
             </div>
         </div>
 
+        <!-- ADDED DEBUG BUTTON -->
+        <div style="text-align: center; margin: 10px 0;">
+            <button onclick="forceRefreshProducts()" style="padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 12px; cursor: pointer;">
+                <i class="fas fa-sync-alt"></i> Refresh Products
+            </button>
+            <span id="product-count" style="margin-left: 10px; font-size: 12px; color: #666;">0 products</span>
+        </div>
+
         <div id="featured-section-ui">
             <h3 class="featured-title">🔥 New Arrivals</h3>
             <div class="featured-container" id="featured-list"></div>
@@ -630,7 +638,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -642,6 +650,14 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // 🐛 DEBUG HELPER
+        console.log("🔄 ShopEasy Debug Info:");
+        console.log("- Firebase connected:", !!app);
+        console.log("- Database:", !!db);
+        console.log("- Online status:", navigator.onLine);
+        console.log("- Cached products:", localStorage.getItem("cachedProducts") ? "Yes" : "No");
+        console.log("- Screen size:", window.innerWidth);
 
         // UPDATED: Shuffle products array function
         function shuffleArray(arr) {
@@ -684,10 +700,10 @@
             let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
             if (list.includes(id)) {
                 list = list.filter(x => x !== id);
-                alert("Removed from wishlist");
+                showToast("Removed from wishlist", 2000);
             } else {
                 list.push(id);
-                alert("Added to wishlist!");
+                showToast("Added to wishlist! 💖", 2000);
             }
             localStorage.setItem('wishlist', JSON.stringify(list));
         }
@@ -727,6 +743,40 @@
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
 
+        // ✅ STEP 4: LOAD CACHED PRODUCTS ON PAGE LOAD
+        window.addEventListener("load", () => {
+            const cachedProducts = localStorage.getItem("cachedProducts");
+            if (cachedProducts) {
+                try {
+                    const parsed = JSON.parse(cachedProducts);
+                    console.log("📦 Loaded products from cache:", parsed.length);
+                    
+                    // Show cached products immediately for better UX
+                    allProducts = shuffleArray(parsed);
+                    renderProducts(paginateProducts(allProducts));
+                    renderFeatured(allProducts);
+                    
+                    // Show notification if offline
+                    if (!navigator.onLine) {
+                        showToast("📶 You're offline. Using cached products.", 5000);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse cached products:", e);
+                }
+            }
+            
+            // Listen for online/offline events
+            window.addEventListener("online", () => {
+                console.log("🌐 Online - refreshing products...");
+                showToast("🔄 Connected! Updating products...", 3000);
+            });
+            
+            window.addEventListener("offline", () => {
+                console.log("📴 Offline - using cached products");
+                showToast("📶 You're offline. Using cached products.", 5000);
+            });
+        });
+
         window.togglePayDetails = () => {
             const method = document.getElementById('pay-method').value;
             const ins = document.getElementById('pay-instructions'), txt = document.getElementById('pay-text');
@@ -749,7 +799,7 @@
             navigator.clipboard.writeText(num).then(() => {
                 icon.className = "fas fa-check"; 
                 icon.style.color = "var(--success)";
-                alert("Success! " + method + " number (" + num + ") copied to clipboard.");
+                showToast("✅ " + method + " number copied to clipboard!");
                 setTimeout(() => { 
                     icon.className = "fas fa-copy"; 
                     icon.style.color = "var(--secondary)"; 
@@ -769,18 +819,80 @@
 
         if (localStorage.getItem('theme') === 'dark') toggleTheme();
 
-        // UPDATED: Products are now shuffled on every refresh and paginated
+        // Force refresh function
+        window.forceRefreshProducts = async () => {
+            console.log("🔄 Manual refresh triggered");
+            showToast("Refreshing products...", 2000);
+            
+            try {
+                // Clear cache
+                localStorage.removeItem("cachedProducts");
+                
+                // Force Firestore re-fetch
+                const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
+                const snapshot = await getDocs(q);
+                
+                if (snapshot.empty) {
+                    showToast("No products found", 3000);
+                    return;
+                }
+                
+                allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+                
+                // Save to cache
+                localStorage.setItem("cachedProducts", JSON.stringify(allProducts));
+                
+                // Render
+                renderProducts(paginateProducts(allProducts));
+                renderFeatured(allProducts);
+                
+                showToast(`✅ Loaded ${allProducts.length} products`, 3000);
+            } catch (error) {
+                console.error("Refresh error:", error);
+                showToast("❌ Refresh failed: " + error.message, 4000);
+            }
+        };
+
+        // ✅ STEP 3: UPDATED Firebase listener with PROPER rendering
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
+            console.log("🔥 Firestore snapshot received:", snapshot.size, "products");
+            
+            if (snapshot.empty) {
+                console.log("❌ No products found in Firestore");
+                showToast("No products available. Check your connection.", 3000);
+                return;
+            }
+            
+            // ✅ ALWAYS clear products first
+            document.getElementById('store-container').innerHTML = "";
+            
+            // Process products
             allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+            
+            // ✅ STEP 3: SAVE PRODUCTS TO LOCAL STORAGE
+            try {
+                localStorage.setItem("cachedProducts", JSON.stringify(allProducts));
+                localStorage.setItem("productsLastUpdated", Date.now().toString());
+                console.log("✅ Products cached locally:", allProducts.length);
+            } catch (e) {
+                console.warn("Could not cache products:", e.message);
+            }
+            
+            // ✅ IMPORTANT: Always render AFTER clearing
             renderProducts(paginateProducts(allProducts));
             renderFeatured(allProducts);
             updateHistoryUI();
+            
+            // Show update notification
+            if (document.hidden === false && navigator.onLine) {
+                showToast(`✅ Loaded ${allProducts.length} products`, 2000);
+            }
         });
 
         window.shareStore = () => {
             const text = encodeURIComponent("Check out ShopEasy Malawi for amazing deals! 🛍️");
             if (navigator.share) navigator.share({ title: 'ShopEasy', text: text, url: window.location.href });
-            else { navigator.clipboard.writeText(window.location.href); alert("Store link copied!"); }
+            else { navigator.clipboard.writeText(window.location.href); showToast("✅ Store link copied!"); }
         };
 
         // NEW: Footer Toggle
@@ -806,7 +918,24 @@
 
         function renderProducts(list) {
             const cont = document.getElementById('store-container');
+            
+            // ✅ CRITICAL: ALWAYS clear container first
             cont.innerHTML = "";
+            
+            if (!list || list.length === 0) {
+                console.log("⚠️ No products to render");
+                cont.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <i class="fas fa-box-open" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                        <p style="color: #888; font-size: 16px;">No products available</p>
+                        <button onclick="window.location.reload()" style="margin-top: 15px; padding: 8px 20px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>`;
+                return;
+            }
+            
+            console.log(`🎨 Rendering ${list.length} products`);
             
             // Get wishlist from localStorage
             const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -819,7 +948,9 @@
                 if (stockLevel <= 0) {
                     stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>';
                     btnAttr = "disabled"; btnClass = "btn-buy btn-disabled"; btnText = "Unavailable";
-                } else if (stockLevel <= 5) { stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; }
+                } else if (stockLevel <= 5) { 
+                    stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; 
+                }
                 
                 const card = document.createElement('div');
                 card.className = 'product-card';
@@ -832,7 +963,7 @@
                     <div class="wishlist-heart ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
                         <i class="fas fa-heart"></i>
                     </div>
-                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
+                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'" loading="lazy">
                     <div class="p-info">
                         <div class="rating"><i class="fas fa-star"></i> 4.8</div>
                         ${stockBadge}
@@ -853,6 +984,7 @@
             const navCart = document.getElementById('cart-nav-icon');
             navCart.classList.add('shake-now');
             setTimeout(() => navCart.classList.remove('shake-now'), 400);
+            showToast("✅ Added to cart!", 2000);
             updateCartUI();
         };
 
@@ -876,20 +1008,25 @@
             const price = document.getElementById('modal-price').innerText;
             const text = `Look at this: ${name} for ${price} at ShopEasy Malawi! 🇲🇼`;
             if (navigator.share) navigator.share({ title: name, text: text, url: window.location.href });
-            else { navigator.clipboard.writeText(`${text} ${window.location.href}`); alert("Product link & info copied!"); }
+            else { navigator.clipboard.writeText(`${text} ${window.location.href}`); showToast("✅ Product link copied!"); }
         };
 
-        window.clearCart = () => { cart = []; discountPercent = 0; updateCartUI(); };
+        window.clearCart = () => { 
+            cart = []; 
+            discountPercent = 0; 
+            updateCartUI(); 
+            showToast("🛒 Cart cleared", 2000);
+        };
 
         window.applyPromo = () => {
             const code = document.getElementById('promo-input').value.trim().toUpperCase();
             if (code === "SAVE10") { 
                 discountPercent = 10; 
-                alert("Promo applied! 10% discount.");
+                showToast("🎉 Promo applied! 10% discount.", 3000);
                 updateCartUI();
             } else { 
                 discountPercent = 0; 
-                alert("Invalid promo code.");
+                showToast("❌ Invalid promo code.", 3000);
                 updateCartUI();
             }
         };
@@ -941,7 +1078,13 @@
                 "<p style='font-size:11px; opacity:0.6;'>No previous orders found.</p>";
         }
 
-        window.clearHistory = () => { if(confirm("Delete history?")) { localStorage.removeItem('orderHistory'); updateHistoryUI(); } };
+        window.clearHistory = () => { 
+            if(confirm("Delete order history?")) { 
+                localStorage.removeItem('orderHistory'); 
+                updateHistoryUI(); 
+                showToast("🗑️ History cleared", 2000);
+            } 
+        };
 
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim();
@@ -953,8 +1096,9 @@
             const lastOrder = localStorage.getItem('last_order_time');
             
             if(botCheck) return;
-            if(lastOrder && Date.now() - lastOrder < 30000) return alert("Please wait 30 seconds.");
-            if(!name || !cart.length) return alert("Enter name and add items!");
+            if(lastOrder && Date.now() - lastOrder < 30000) return showToast("⏳ Please wait 30 seconds between orders", 3000);
+            if(!name || !cart.length) return showToast("❌ Enter name and add items!", 3000);
+            if(name.length < 3) return showToast("❌ Name must be at least 3 letters", 3000);
             
             let subtotal = 0;
             let itemsText = cart.map(i => {
@@ -997,9 +1141,12 @@
                 discountPercent = 0; 
                 updateCartUI(); 
                 updateHistoryUI();
-                showToast();
+                showToast("✅ Order sent to WhatsApp!", 5000);
                 
-            } catch (e) { alert(e.message); }
+            } catch (e) { 
+                showToast("❌ Error: " + e.message, 5000);
+                console.error("Checkout error:", e);
+            }
         };
 
         window.handleSearch = () => {
@@ -1007,24 +1154,46 @@
             renderProducts(paginateProducts(allProducts.filter(p => p.name.toLowerCase().includes(q))));
         };
 
-        // NEW: Live Toast Function
+        // NEW: Improved Toast Function
         const towns = ["Blantyre", "Lilongwe", "Zomba", "Mzuzu", "Karonga", "Mulanje", "Thyolo"];
-        function showToast() {
+        function showToast(message, duration = 4000) {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            
+            toast.innerText = message;
+            toast.style.display = 'block';
+            
+            // Add different styles based on message type
+            if (message.includes("offline") || message.includes("cached")) {
+                toast.style.background = "#ff9800"; // Orange for warnings
+            } else if (message.includes("Connected") || message.includes("success") || message.includes("✅") || message.includes("🎉")) {
+                toast.style.background = "#4CAF50"; // Green for success
+            } else if (message.includes("Error") || message.includes("❌") || message.includes("Invalid")) {
+                toast.style.background = "#f44336"; // Red for errors
+            } else {
+                toast.style.background = "var(--dark)"; // Default
+            }
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+                toast.style.background = "var(--dark)"; // Reset to default
+            }, duration);
+        }
+        
+        // Show live activity toast every 15-30 seconds
+        function showLiveActivityToast() {
             if (allProducts.length === 0) return;
             const p = allProducts[Math.floor(Math.random() * allProducts.length)];
             const town = towns[Math.floor(Math.random() * towns.length)];
             const timeAgo = Math.floor(Math.random() * 30) + 1;
-            const toast = document.getElementById('toast');
-            toast.innerText = `🛒 Someone in ${town} bought "${p.name}" ${timeAgo} min ago`;
-            toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 4000);
+            showToast(`🛒 Someone in ${town} bought "${p.name}" ${timeAgo} min ago`);
         }
         
         // Show toast every 15-30 seconds
-        setInterval(showToast, 15000 + Math.random() * 15000);
+        setInterval(showLiveActivityToast, 15000 + Math.random() * 15000);
         
         // Show initial toast after 5 seconds
-        setTimeout(showToast, 5000);
+        setTimeout(showLiveActivityToast, 5000);
 
         // UPDATED: Modal Zoom removed. Pure slide-in and static image logic.
         const zoomImg = document.getElementById('modal-img');
@@ -1084,6 +1253,15 @@
             btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
         });
 
+        // 🚨 NUCLEAR OPTION: Force render every 2 seconds if empty
+        setInterval(() => {
+            const container = document.getElementById('store-container');
+            if (container && container.children.length === 0 && allProducts.length > 0) {
+                console.log("⚠️ Container empty but products exist - FORCE RENDER");
+                renderProducts(paginateProducts(allProducts));
+            }
+        }, 2000);
+
         // ============================================
         // PWA INSTALLATION FEATURES
         // ============================================
@@ -1129,15 +1307,16 @@
                             installButton.style.display = 'none';
                         }
                         // Show success message
-                        alert('🎉 ShopEasy installed successfully! Find it on your home screen.');
+                        showToast('🎉 ShopEasy installed successfully!', 5000);
                     } else {
                         console.log('User dismissed the install prompt');
+                        showToast('❌ Installation cancelled', 3000);
                     }
                     deferredPrompt = null;
                 });
             } else {
                 // If deferredPrompt is not available, show instructions
-                alert("To install ShopEasy:\n\n📱 Mobile: Tap browser menu (⋮ or ⠇) then 'Add to Home Screen'\n💻 Desktop: Look for install icon in address bar (📥)");
+                showToast("📱 Tap browser menu (⋮) → 'Add to Home Screen'", 5000);
             }
         };
 
@@ -1149,12 +1328,7 @@
             }
             // Show welcome message
             setTimeout(() => {
-                const toast = document.getElementById('toast');
-                if (toast) {
-                    toast.innerText = "🎉 Welcome to ShopEasy app!";
-                    toast.style.display = 'block';
-                    setTimeout(() => toast.style.display = 'none', 4000);
-                }
+                showToast("🎉 Welcome to ShopEasy app!", 4000);
             }, 1000);
         });
 
@@ -1175,33 +1349,11 @@
             console.log('Running as installed PWA');
         }
 
-        // Service Worker Registration
+        // ✅ BONUS: PWA Ready Check
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js').then(registration => {
-                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    
-                    // Check for updates
-                    registration.addEventListener('updatefound', () => {
-                        const newWorker = registration.installing;
-                        console.log('New service worker found');
-                        
-                        newWorker.addEventListener('statechange', () => {
-                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                // New update available
-                                const toast = document.getElementById('toast');
-                                if (toast) {
-                                    toast.innerText = "🔄 New version available! Refresh to update.";
-                                    toast.style.display = 'block';
-                                    toast.onclick = () => window.location.reload();
-                                    setTimeout(() => toast.style.display = 'none', 8000);
-                                }
-                            }
-                        });
-                    });
-                }).catch(err => {
-                    console.log('ServiceWorker registration failed: ', err);
-                });
+            navigator.serviceWorker.ready.then(() => {
+                console.log("✅ PWA Service Worker ready");
+                showToast("🚀 ShopEasy is ready for offline use!", 3000);
             });
         }
 
@@ -1223,14 +1375,41 @@
     </script>
 
     <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./sw.js")
-      .then(() => console.log("Service Worker registered"))
-      .catch(err => console.log("SW failed", err));
-  });
-}
-</script>
+        // ✅ STEP 2: Service Worker Registration with the new sw.js
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker
+                    .register("./sw.js")
+                    .then((registration) => {
+                        console.log("✅ Service Worker registered with scope:", registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            console.log('🔄 New service worker found');
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // New update available
+                                    const toast = document.getElementById('toast');
+                                    if (toast) {
+                                        toast.innerText = "🔄 New version available! Tap to refresh.";
+                                        toast.style.display = 'block';
+                                        toast.style.background = "#2196F3";
+                                        toast.style.cursor = 'pointer';
+                                        toast.onclick = () => window.location.reload();
+                                        setTimeout(() => {
+                                            toast.style.display = 'none';
+                                            toast.style.cursor = 'default';
+                                        }, 8000);
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.log("❌ SW failed", err));
+            });
+        }
+    </script>
 </body>
 </html>
