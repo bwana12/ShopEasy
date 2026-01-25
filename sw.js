@@ -1,7 +1,6 @@
-const CACHE_NAME = "shopeasy-v2"; // Incremented version
+const CACHE_NAME = "shopeasy-v2";
 
-// We must cache the external libraries (Firebase & FontAwesome) 
-// or the app will crash offline.
+// Cache external libs to prevent offline crashes
 const ASSETS_TO_CACHE = [
   "./",
   "./index.html",
@@ -41,9 +40,9 @@ self.addEventListener("activate", event => {
 
 // Fetch Event
 self.addEventListener("fetch", event => {
-  // Handle Firestore requests separately (let Firebase SDK handle its own offline logic)
+  // Ignore Firestore requests (handled by Firebase SDK)
   if (event.request.url.includes("firestore.googleapis.com")) {
-    return; 
+    return;
   }
 
   event.respondWith(
@@ -53,29 +52,24 @@ self.addEventListener("fetch", event => {
         return cachedResponse;
       }
 
-      // 2. If not in cache, fetch from network
+      // 2. Network request
       return fetch(event.request)
         .then(response => {
-          // Check if valid response
           if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-
-          // Cache new images/files dynamically as the user browses
+          // Cache valid responses dynamically
           const responseToCache = response.clone();
           caches.open(CACHE_NAME).then(cache => {
             cache.put(event.request, responseToCache);
           });
-
           return response;
         })
         .catch(() => {
-          // 3. Offline Fallback
-          // If it's a navigation request (page load), show index.html
+          // 3. Offline fallback for navigation
           if (event.request.mode === 'navigate') {
             return caches.match("./index.html");
           }
-          // If it's an image, you could optionally return a placeholder here
         });
     })
   );
